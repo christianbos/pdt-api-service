@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Procesador JSON a Excel - Cartas</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        .input-section {
+            margin-bottom: 20px;
+        }
+        .input-section h3 {
+            color: #444;
+            margin-bottom: 10px;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 10px 5px;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            background: #f8f9ff;
+        }
+        .error {
+            border-left-color: #e74c3c;
+            background: #fff5f5;
+            color: #c53030;
+        }
+        .success {
+            border-left-color: #48bb78;
+            background: #f0fff4;
+            color: #2f855a;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .stat-card h4 {
+            margin: 0 0 10px 0;
+            font-size: 2em;
+        }
+        .stat-card p {
+            margin: 0;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🃏 Procesador JSON a Excel</h1>
+            <p>Convierte tus datos de cartas JSON al formato Excel</p>
+        </div>
+
+        <div class="input-section">
+            <h3>📋 Pega aquí tus datos JSON (un JSON por línea):</h3>
+            <textarea id="jsonInput" placeholder='{"type":"api::card.card","id":1,"data":{"name":"Carta ejemplo",...}}
+{"type":"api::card.card","id":2,"data":{"name":"Otra carta",...}}
+...'></textarea>
+        </div>
+
+        <button class="btn" onclick="processData()">🚀 Procesar y Descargar Excel</button>
+        <button class="btn" onclick="loadSampleData()">📝 Cargar Datos de Ejemplo</button>
+        <button class="btn" onclick="clearData()">🗑️ Limpiar</button>
+
+        <div id="result"></div>
+        <div id="stats"></div>
+    </div>
+
+    <script>
+        function mapCardToExcelRow(card) {
+            const data = card.data;
+            return [
+                data.name || '',
+                data.set || '',
+                data.number || '',
+                data.year || '',
+                data.rarity || '',
+                data.finalGrade || '',
+                data.certificationNumber || '',
+                data.version || '',
+                data.has3DScan || false,
+                data.surface?.finalScore || '',
+                data.surface?.bent || '',
+                data.surface?.bentWeight || '',
+                data.surface?.front?.color || '',
+                data.surface?.front?.scratches || '',
+                data.surface?.front?.colorWeight || '',
+                data.surface?.front?.scratchesWeight || '',
+                data.surface?.front?.totalWeight || '',
+                data.surface?.back?.color || '',
+                data.surface?.back?.scratches || '',
+                data.surface?.back?.colorWeight || '',
+                data.surface?.back?.scratchesWeight || '',
+                data.surface?.back?.totalWeight || '',
+                data.edges?.finalScore || '',
+                data.edges?.frontWeight || '',
+                data.edges?.backWeight || '',
+                data.edges?.front?.left || '',
+                data.edges?.front?.top || '',
+                data.edges?.front?.right || '',
+                data.edges?.front?.bottom || '',
+                data.edges?.back?.left || '',
+                data.edges?.back?.top || '',
+                data.edges?.back?.right || '',
+                data.edges?.back?.bottom || '',
+                data.corners?.finalScore || '',
+                data.corners?.frontWeight || '',
+                data.corners?.backWeight || '',
+                data.corners?.front?.topLeft || '',
+                data.corners?.front?.topRight || '',
+                data.corners?.front?.bottomLeft || '',
+                data.corners?.front?.bottomRight || '',
+                data.corners?.back?.topLeft || '',
+                data.corners?.back?.topRight || '',
+                data.corners?.back?.bottomLeft || '',
+                data.corners?.back?.bottomRight || '',
+                data.centering?.frontScore || '',
+                data.centering?.backScore || '',
+                data.centering?.finalScore || '',
+                data.centering?.front?.left || '',
+                data.centering?.front?.top || '',
+                data.centering?.back?.left || '',
+                data.centering?.back?.top || ''
+            ];
+        }
+
+        function processData() {
+            const input = document.getElementById('jsonInput').value.trim();
+            const resultDiv = document.getElementById('result');
+            const statsDiv = document.getElementById('stats');
+
+            if (!input) {
+                resultDiv.innerHTML = '<div class="result error">⚠️ Por favor, ingresa los datos JSON.</div>';
+                return;
+            }
+
+            try {
+                const lines = input.split('\n');
+                const cards = [];
+                const errors = [];
+
+                lines.forEach((line, index) => {
+                    const trimmedLine = line.trim();
+                    if (trimmedLine) {
+                        try {
+                            const card = JSON.parse(trimmedLine);
+                            cards.push(card);
+                        } catch (e) {
+                            errors.push(`Línea ${index + 1}: ${e.message}`);
+                        }
+                    }
+                });
+
+                if (cards.length === 0) {
+                    resultDiv.innerHTML = '<div class="result error">❌ No se pudieron procesar las cartas. Verifica el formato JSON.</div>';
+                    return;
+                }
+
+                // Crear encabezados
+                const headers = [
+                    'name', 'set', 'number', 'year', 'rarity', 'finalGrade', 'certificationNumber', 'version', 'has3DScan',
+                    'surfaceFinalScore', 'surfaceBent', 'surfaceBentWeight', 'surfaceFrontColor', 'surfaceFrontScratches',
+                    'surfaceFrontColorWeight', 'surfaceFrontScratchesWeight', 'surfaceFrontTotalWeight', 'surfaceBackColor',
+                    'surfaceBackScratches', 'surfaceBackColorWeight', 'surfaceBackScratchesWeight', 'surfaceBackTotalWeight',
+                    'edgesFinalScore', 'edgesFrontWeight', 'edgesBackWeight', 'edgesFrontLeft', 'edgesFrontTop', 'edgesFrontRight',
+                    'edgesFrontBottom', 'edgesBackLeft', 'edgesBackTop', 'edgesBackRight', 'edgesBackBottom', 'cornersFinalScore',
+                    'cornersFrontWeight', 'cornersBackWeight', 'cornersFrontTopLeft', 'cornersFrontTopRight', 'cornersFrontBottomLeft',
+                    'cornersFrontBottomRight', 'cornersBackTopLeft', 'cornersBackTopRight', 'cornersBackBottomLeft', 'cornersBackBottomRight',
+                    'centeringFrontScore', 'centeringBackScore', 'centeringFinalScore', 'centeringFrontLeft', 'centeringFrontTop',
+                    'centeringBackLeft', 'centeringBackTop'
+                ];
+
+                // Crear datos del Excel
+                const excelData = [headers];
+                cards.forEach(card => {
+                    excelData.push(mapCardToExcelRow(card));
+                });
+
+                // Crear workbook
+                const ws = XLSX.utils.aoa_to_sheet(excelData);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Cards");
+
+                // Descargar archivo
+                XLSX.writeFile(wb, "cards_data.xlsx");
+
+                // Mostrar estadísticas
+                const gradeStats = {};
+                const rarityStats = {};
+                let totalGrade = 0;
+
+                cards.forEach(card => {
+                    const grade = card.data.finalGrade;
+                    const rarity = card.data.rarity;
+                    
+                    gradeStats[grade] = (gradeStats[grade] || 0) + 1;
+                    rarityStats[rarity] = (rarityStats[rarity] || 0) + 1;
+                    totalGrade += grade;
+                });
+
+                const avgGrade = (totalGrade / cards.length).toFixed(2);
+
+                statsDiv.innerHTML = `
+                    <div class="stats">
+                        <div class="stat-card">
+                            <h4>${cards.length}</h4>
+                            <p>Cartas Procesadas</p>
+                        </div>
+                        <div class="stat-card">
+                            <h4>${avgGrade}</h4>
+                            <p>Grado Promedio</p>
+                        </div>
+                        <div class="stat-card">
+                            <h4>${Object.keys(rarityStats).length}</h4>
+                            <p>Rarezas Diferentes</p>
+                        </div>
+                        <div class="stat-card">
+                            <h4>${errors.length}</h4>
+                            <p>Errores</p>
+                        </div>
+                    </div>
+                `;
+
+                let message = `<div class="result success">✅ Excel generado exitosamente con ${cards.length} cartas!</div>`;
+                if (errors.length > 0) {
+                    message += `<div class="result error">⚠️ Se encontraron ${errors.length} errores:<br>${errors.slice(0, 5).join('<br>')}</div>`;
+                }
+                resultDiv.innerHTML = message;
+
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result error">❌ Error procesando datos: ${error.message}</div>`;
+            }
+        }
+
+        function loadSampleData() {
+            const sampleData = `{"type":"api::card.card","id":1,"data":{"documentId":"zsfrnv5qrlcsa3yh9vfaqbos","name":"Pétalos de fuego","createdAt":"2025-07-27T01:09:37.532Z","updatedAt":"2025-07-28T05:11:10.017Z","publishedAt":null,"locale":null,"set":"GUERRA ROJA","number":"#LGRO-006U","year":"2025","rarity":"ULTRA RARA","finalGrade":9,"certificationNumber":1,"version":1,"has3DScan":false,"surface":{"id":1,"finalScore":8,"bent":null,"bentWeight":null,"front":{"id":1,"color":8,"scratches":8,"colorWeight":0.3,"scratchesWeight":0.7,"totalWeight":0.45},"back":{"id":1,"color":8,"scratches":8,"colorWeight":0.3,"scratchesWeight":0.7,"totalWeight":0.45}},"edges":{"id":1,"finalScore":9.5,"frontWeight":null,"backWeight":null,"front":{"id":1,"left":9.5,"top":9.5,"right":9.5,"bottom":9.5},"back":{"id":2,"left":9.5,"top":9.5,"right":9.5,"bottom":9.5}},"corners":{"id":1,"finalScore":10,"frontWeight":0.6,"backWeight":0.4,"front":{"id":1,"topLeft":10,"topRight":10,"bottomLeft":10,"bottomRight":10},"back":{"id":2,"topLeft":10,"topRight":10,"bottomLeft":10,"bottomRight":10}},"centering":{"id":1,"frontScore":10,"backScore":10,"finalScore":10,"front":{"id":1,"left":10,"top":10},"back":{"id":2,"left":10,"top":10}}}}
+{"type":"api::card.card","id":2,"data":{"documentId":"vop5u8s4w57td2wukkb570j3","name":"Regigigas Vstar","createdAt":"2025-07-27T01:09:37.534Z","updatedAt":"2025-07-27T01:09:37.534Z","publishedAt":null,"locale":null,"set":"CROWN ZENITH","number":"#114","year":"2023","rarity":"ULTRA RARE","finalGrade":10,"certificationNumber":10,"version":1,"has3DScan":false,"surface":{"id":12,"finalScore":9.5,"bent":10,"bentWeight":null,"front":{"id":12,"color":9.5,"scratches":9.5,"colorWeight":0.3,"scratchesWeight":0.7,"totalWeight":0.45},"back":{"id":12,"color":9.5,"scratches":9.5,"colorWeight":0.3,"scratchesWeight":0.7,"totalWeight":0.45}},"edges":{"id":12,"finalScore":10,"frontWeight":0.6,"backWeight":0.4,"front":{"id":23,"left":10,"top":10,"right":10,"bottom":10},"back":{"id":24,"left":10,"top":10,"right":10,"bottom":10}},"corners":{"id":12,"finalScore":10,"frontWeight":0.6,"backWeight":0.4,"front":{"id":23,"topLeft":10,"topRight":10,"bottomLeft":10,"bottomRight":10},"back":{"id":24,"topLeft":10,"topRight":10,"bottomLeft":10,"bottomRight":10}},"centering":{"id":12,"frontScore":9.5,"backScore":9.5,"finalScore":9.5,"front":{"id":23,"left":9.5,"top":9.5},"back":{"id":24,"left":9.5,"top":9.5}}}}`;
+            
+            document.getElementById('jsonInput').value = sampleData;
+            document.getElementById('result').innerHTML = '<div class="result">📝 Datos de ejemplo cargados. Haz clic en "Procesar" para generar el Excel.</div>';
+        }
+
+        function clearData() {
+            document.getElementById('jsonInput').value = '';
+            document.getElementById('result').innerHTML = '';
+            document.getElementById('stats').innerHTML = '';
+        }
+    </script>
+</body>
+</html>

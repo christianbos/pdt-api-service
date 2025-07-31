@@ -1,0 +1,40 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+/* Custom styles */
+.gradient-bg {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transition: all 0.2s ease;
+}
+
+.btn-gradient {
+  background: linear-gradient(45deg, #007bff, #0056b3);
+  border: none;
+  color: white;
+}
+
+.btn-gradient:hover {
+  background: linear-gradient(45deg, #0056b3, #004085);
+  color: white;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.badge-grade-high {
+  background-color: #28a745 !important;
+}
+
+.badge-grade-medium {
+  background-color: #ffc107 !important;
+  color: #212529 !important;
+}
+
+.badge-grade-low {
+  background-color: #dc3545 !important;
+}

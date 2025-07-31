@@ -1,0 +1,14 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Permitir acceso completo a cartas para usuarios autenticados con Admin SDK
+    match /cards/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Para desarrollo: permitir acceso público (REMOVER EN PRODUCCIÓN)
+    match /cards/{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
