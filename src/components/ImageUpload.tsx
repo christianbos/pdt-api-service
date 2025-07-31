@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import Image from 'next/image'
 
 interface ImageUploadProps {
   certificationNumber: number
@@ -21,17 +22,7 @@ export default function ImageUpload({ certificationNumber }: ImageUploadProps) {
     }
   }, [])
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setDragActive(false)
-
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFiles(Array.from(e.dataTransfer.files))
-    }
-  }, [])
-
-  const handleFiles = async (files: File[]) => {
+  const handleFiles = useCallback(async (files: File[]) => {
     const imageFiles = files.filter(file => file.type.startsWith('image/'))
     
     if (imageFiles.length === 0) {
@@ -69,7 +60,18 @@ export default function ImageUpload({ certificationNumber }: ImageUploadProps) {
     } finally {
       setUploading(false)
     }
-  }
+  }, [certificationNumber])
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragActive(false)
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFiles(Array.from(e.dataTransfer.files))
+    }
+  }, [handleFiles])
+
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -150,11 +152,13 @@ export default function ImageUpload({ certificationNumber }: ImageUploadProps) {
             {images.map((image, index) => (
               <div key={index} className="col-6 col-md-4 col-lg-3">
                 <div className="position-relative">
-                  <img
+                  <Image
                     src={image}
                     alt={`Card image ${index + 1}`}
                     className="img-fluid rounded border"
                     style={{height: '100px', objectFit: 'cover', width: '100%'}}
+                    width={100}
+                    height={100}
                   />
                   <button
                     onClick={() => setImages(prev => prev.filter((_, i) => i !== index))}

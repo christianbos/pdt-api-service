@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import Link from 'next/link'
 import { Card } from '@/types/card'
 
 export default function AdminDashboard() {
@@ -12,11 +13,7 @@ export default function AdminDashboard() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>(null)
   const cardsPerPage = 20
 
-  useEffect(() => {
-    fetchCards()
-  }, [currentPage, sortOrder])
-
-  const fetchCards = async () => {
+  const fetchCards = useCallback(async () => {
     try {
       setLoading(true)
       const offset = (currentPage - 1) * cardsPerPage
@@ -42,7 +39,12 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [currentPage, sortOrder, cardsPerPage])
+
+  useEffect(() => {
+    fetchCards()
+  }, [fetchCards])
+
 
   const handleDelete = async (certificationNumber: number) => {
     if (!confirm('¿Estás seguro de que quieres eliminar esta carta?')) {
@@ -111,18 +113,18 @@ export default function AdminDashboard() {
           </div>
           
           <div className="d-flex gap-2">
-            <a href="/admin/import" className="btn btn-outline-success btn-sm">
+            <Link href="/admin/import" className="btn btn-outline-success btn-sm">
               <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" className="me-1">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
               </svg>
               Importar Excel
-            </a>
-            <a href="/admin/cards/new" className="btn btn-gradient btn-sm">
+            </Link>
+            <Link href="/admin/cards/new" className="btn btn-gradient btn-sm">
               <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" className="me-1">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
               Nueva Carta
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -243,7 +245,7 @@ export default function AdminDashboard() {
                 </td>
                 <td className="text-end">
                   <div className="btn-group btn-group-sm">
-                    <a
+                    <Link
                       href={`/admin/cards/${card.certificationNumber}`}
                       className="btn btn-outline-info"
                     >
@@ -252,8 +254,8 @@ export default function AdminDashboard() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
                       Ver
-                    </a>
-                    <a
+                    </Link>
+                    <Link
                       href={`/admin/cards/${card.certificationNumber}/edit`}
                       className="btn btn-outline-primary"
                     >
@@ -261,7 +263,7 @@ export default function AdminDashboard() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
                       Editar
-                    </a>
+                    </Link>
                     <button
                       onClick={() => handleDelete(card.certificationNumber)}
                       className="btn btn-outline-danger"
@@ -289,12 +291,12 @@ export default function AdminDashboard() {
               {searchTerm ? 'Intenta con otros términos de búsqueda' : 'Comienza creando tu primera carta'}
             </p>
             {!searchTerm && (
-              <a href="/admin/cards/new" className="btn btn-gradient mt-3">
+              <Link href="/admin/cards/new" className="btn btn-gradient mt-3">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" className="me-1">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
                 Nueva Carta
-              </a>
+              </Link>
             )}
           </div>
         )}

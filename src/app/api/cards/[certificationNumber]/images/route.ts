@@ -58,7 +58,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const uploadResults = await Promise.all(uploadPromises)
     const imageUrls = uploadResults.map(result => result.secure_url)
 
-    const currentImages = card.data.images || []
+    const currentImages = card.images || []
     const updatedImages = [...currentImages, ...imageUrls]
 
     const updatedCard = await CardService.updateCard(certNumber, {

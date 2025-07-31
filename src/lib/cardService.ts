@@ -76,7 +76,7 @@ export class CardService {
       }
     }
 
-    const docRef = db.collection(COLLECTIONS.CARDS).doc(existingCard.data.documentId)
+    const docRef = db.collection(COLLECTIONS.CARDS).doc(existingCard.documentId)
     await docRef.update({
       ...updates,
       updatedAt: new Date().toISOString(),

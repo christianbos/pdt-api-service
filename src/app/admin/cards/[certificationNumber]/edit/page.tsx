@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import CardForm from '@/components/CardForm'
 import { Card, CreateCardRequest } from '@/types/card'
@@ -23,13 +23,7 @@ export default function EditCardPage({ params }: PageProps) {
     fetchParams()
   }, [params])
 
-  useEffect(() => {
-    if (certificationNumber) {
-      fetchCard()
-    }
-  }, [certificationNumber])
-
-  const fetchCard = async () => {
+  const fetchCard = useCallback(async () => {
     try {
       const response = await fetch(`/api/cards/${certificationNumber}`, {
         headers: {
@@ -51,7 +45,13 @@ export default function EditCardPage({ params }: PageProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [certificationNumber, router])
+
+  useEffect(() => {
+    if (certificationNumber) {
+      fetchCard()
+    }
+  }, [certificationNumber, fetchCard])
 
   const handleSubmit = async (data: CreateCardRequest) => {
     try {

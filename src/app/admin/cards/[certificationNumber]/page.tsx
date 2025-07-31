@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card } from '@/types/card'
 
@@ -22,13 +22,7 @@ export default function CardDetailPage({ params }: PageProps) {
     fetchParams()
   }, [params])
 
-  useEffect(() => {
-    if (certificationNumber) {
-      fetchCard()
-    }
-  }, [certificationNumber])
-
-  const fetchCard = async () => {
+  const fetchCard = useCallback(async () => {
     try {
       const response = await fetch(`/api/cards/${certificationNumber}`, {
         headers: {
@@ -50,7 +44,13 @@ export default function CardDetailPage({ params }: PageProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [certificationNumber, router])
+
+  useEffect(() => {
+    if (certificationNumber) {
+      fetchCard()
+    }
+  }, [certificationNumber, fetchCard])
 
   if (loading) {
     return (
