@@ -125,7 +125,7 @@ export default function ImageUpload({ certificationNumber }: ImageUploadProps) {
               />
             </label>
             <p className="mt-2 small text-muted">
-              Arrastra imágenes aquí o usa el botón. PNG, JPG, JPEG hasta 10MB cada una
+              Arrastra imágenes aquí o usa el botón. PNG, JPG, JPEG hasta 100MB cada una
             </p>
           </div>
         </div>

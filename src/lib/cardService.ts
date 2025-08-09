@@ -1,5 +1,5 @@
 import { db, COLLECTIONS } from './firebase'
-import { Card, CreateCardRequest } from '@/types/card'
+import { Card, CreateCardRequest, CardImages, ImageType, ImageMetadata } from '@/types/card'
 import { DocumentReference } from 'firebase-admin/firestore'
 
 export class CardService {
@@ -63,7 +63,7 @@ export class CardService {
     return { cards, total }
   }
 
-  static async updateCard(certificationNumber: number, updates: Partial<CreateCardRequest & { images?: string[] }>): Promise<Card> {
+  static async updateCard(certificationNumber: number, updates: Partial<CreateCardRequest & { images?: CardImages | string[] }>): Promise<Card> {
     const existingCard = await this.getCardByCertificationNumber(certificationNumber)
     if (!existingCard) {
       throw new Error(`Card with certification number ${certificationNumber} not found`)
@@ -93,6 +93,169 @@ export class CardService {
     }
 
     const docRef = db.collection(COLLECTIONS.CARDS).doc(existingCard.documentId)
+    
+    // Eliminar subcollection de imágenes si existe
+    const imagesRef = docRef.collection('images')
+    const imagesSnapshot = await imagesRef.get()
+    
+    if (!imagesSnapshot.empty) {
+      const batch = db.batch()
+      imagesSnapshot.docs.forEach(doc => {
+        batch.delete(doc.ref)
+      })
+      await batch.commit()
+    }
+    
     await docRef.delete()
+  }
+
+  // Image-specific methods
+  static async getCardImages(certificationNumber: number): Promise<CardImages | null> {
+    const card = await this.getCardByCertificationNumber(certificationNumber)
+    return card?.images || null
+  }
+
+  static async getCardImageByType(certificationNumber: number, imageType: ImageType): Promise<ImageMetadata | null> {
+    const images = await this.getCardImages(certificationNumber)
+    if (!images) return null
+
+    const isMain = ['front', 'back'].includes(imageType)
+    const category = isMain ? 'main' : 'specialized'
+    
+    if (category === 'main') {
+      return images.main?.[imageType as keyof typeof images.main] || null
+    } else {
+      return images.specialized?.[imageType as keyof typeof images.specialized] || null
+    }
+  }
+
+  static async updateCardImage(certificationNumber: number, imageType: ImageType, metadata: ImageMetadata): Promise<void> {
+    const existingCard = await this.getCardByCertificationNumber(certificationNumber)
+    if (!existingCard) {
+      throw new Error(`Card with certification number ${certificationNumber} not found`)
+    }
+
+    const isMain = ['front', 'back'].includes(imageType)
+    const category = isMain ? 'main' : 'specialized'
+    
+    const currentImages = existingCard.images || { main: {}, specialized: {} }
+    
+    if (category === 'main') {
+      if (!currentImages.main) {
+        currentImages.main = {}
+      }
+      currentImages.main[imageType as keyof typeof currentImages.main] = metadata
+    } else {
+      if (!currentImages.specialized) {
+        currentImages.specialized = {}
+      }
+      currentImages.specialized[imageType as keyof typeof currentImages.specialized] = metadata
+    }
+
+    await this.updateCard(certificationNumber, { images: currentImages })
+  }
+
+  static async removeCardImage(certificationNumber: number, imageType: ImageType): Promise<void> {
+    const existingCard = await this.getCardByCertificationNumber(certificationNumber)
+    if (!existingCard) {
+      throw new Error(`Card with certification number ${certificationNumber} not found`)
+    }
+
+    const isMain = ['front', 'back'].includes(imageType)
+    const category = isMain ? 'main' : 'specialized'
+    
+    const currentImages = existingCard.images
+    if (!currentImages) return
+    
+    if (category === 'main') {
+      const key = imageType as keyof typeof currentImages.main
+      if (!currentImages.main?.[key]) return
+      delete currentImages.main[key]
+    } else {
+      const key = imageType as keyof typeof currentImages.specialized
+      if (!currentImages.specialized?.[key]) return
+      delete currentImages.specialized[key]
+    }
+    
+    if (category === 'main' && currentImages.main && Object.keys(currentImages.main).length === 0) {
+      delete currentImages.main
+    } else if (category === 'specialized' && currentImages.specialized && Object.keys(currentImages.specialized).length === 0) {
+      delete currentImages.specialized
+    }
+
+    const updatedImages = Object.keys(currentImages).length > 0 ? currentImages : undefined
+    await this.updateCard(certificationNumber, { images: updatedImages as any })
+  }
+
+  static async getCardsByImageType(imageType: ImageType, limit = 20): Promise<Card[]> {
+    const collection = db.collection(COLLECTIONS.CARDS)
+    const isMain = ['front', 'back'].includes(imageType)
+    const category = isMain ? 'main' : 'specialized'
+    
+    const snapshot = await collection
+      .where(`images.${category}.${imageType}`, '!=', null)
+      .limit(limit)
+      .get()
+
+    return snapshot.docs.map(doc => doc.data() as Card)
+  }
+
+  // Corner-specific methods
+  static async getCardCornerImages(certificationNumber: number, side: 'front' | 'back' = 'front'): Promise<Record<string, ImageMetadata | null>> {
+    const images = await this.getCardImages(certificationNumber)
+    if (!images?.specialized) return { topLeft: null, topRight: null, bottomLeft: null, bottomRight: null }
+
+    const corners = ['topLeft', 'topRight', 'bottomLeft', 'bottomRight']
+    const result: Record<string, ImageMetadata | null> = {}
+    
+    corners.forEach(corner => {
+      const imageType = `${side}_corner_${corner}` as ImageType
+      const key = imageType as keyof typeof images.specialized
+      result[corner] = images.specialized?.[key] || null
+    })
+    
+    return result
+  }
+
+  static async updateCardCornerImage(
+    certificationNumber: number, 
+    corner: 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight',
+    side: 'front' | 'back' = 'front',
+    metadata: ImageMetadata
+  ): Promise<void> {
+    const imageType = `${side}_corner_${corner}` as ImageType
+    await this.updateCardImage(certificationNumber, imageType, metadata)
+  }
+
+  static async removeCardCornerImage(
+    certificationNumber: number,
+    corner: 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight', 
+    side: 'front' | 'back' = 'front'
+  ): Promise<void> {
+    const imageType = `${side}_corner_${corner}` as ImageType
+    await this.removeCardImage(certificationNumber, imageType)
+  }
+
+  static async getCardsWithCompleteCorners(side: 'front' | 'back' = 'front', limit = 20): Promise<Card[]> {
+    const collection = db.collection(COLLECTIONS.CARDS)
+    const corners = ['topLeft', 'topRight', 'bottomLeft', 'bottomRight']
+    
+    const cornerQueries = corners.map(corner => {
+      const imageType = `${side}_corner_${corner}`
+      return collection.where(`images.specialized.${imageType}`, '!=', null)
+    })
+    
+    const snapshot = await cornerQueries[0].limit(limit).get()
+    const cards = snapshot.docs.map(doc => doc.data() as Card)
+    
+    return cards.filter(card => {
+      if (!card.images?.specialized) return false
+      
+      return corners.every(corner => {
+        const imageType = `${side}_corner_${corner}` as ImageType
+        const key = imageType as keyof typeof card.images.specialized
+        return card.images?.specialized?.[key]
+      })
+    })
   }
 }

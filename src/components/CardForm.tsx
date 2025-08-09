@@ -297,18 +297,6 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
         </div>
       </div>
 
-      {/* Images Upload */}
-      {initialData?.certificationNumber && (
-        <div className="card mb-4">
-          <div className="card-header">
-            <h3 className="card-title mb-0">Imágenes</h3>
-          </div>
-          <div className="card-body">
-            <ImageUpload certificationNumber={initialData.certificationNumber} />
-          </div>
-        </div>
-      )}
-
       {/* Submit Button */}
       <div className="d-flex justify-content-end">
         <button

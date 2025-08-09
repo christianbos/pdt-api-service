@@ -33,3 +33,9 @@ export function validateAdminCredentials(username: string, password: string): bo
 
   return username === adminUsername && password === adminPassword
 }
+
+export function validateAdminAccess(request: NextRequest): boolean {
+  // Por ahora usar el mismo validateApiKey para admin
+  // En el futuro se podría implementar JWT o sesiones
+  return validateApiKey(request)
+}

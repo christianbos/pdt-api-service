@@ -7,6 +7,7 @@ const firebaseAdminConfig = {
     privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n') || 'demo-key',
     clientEmail: process.env.FIREBASE_CLIENT_EMAIL || 'demo@demo.com',
   }),
+  storageBucket: `${process.env.FIREBASE_PROJECT_ID || 'demo-project'}.firebasestorage.app`
 }
 
 if (getApps().length === 0) {

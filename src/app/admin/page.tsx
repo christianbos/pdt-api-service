@@ -17,7 +17,7 @@ export default function AdminDashboard() {
     try {
       setLoading(true)
       const offset = (currentPage - 1) * cardsPerPage
-      let url = `/api/cards?limit=${cardsPerPage}&offset=${offset}`
+      let url = `/api/cards?limit=${cardsPerPage}&offset=${offset}&sort=asc`
       if (sortOrder) {
         url += `&sort=${sortOrder}`
       }

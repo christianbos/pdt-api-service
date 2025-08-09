@@ -17,8 +17,8 @@
     "@types/node": "^24.1.0",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
+    "@types/uuid": "^10.0.0",
     "bootstrap": "^5.3.7",
-    "cloudinary": "^2.7.0",
     "eslint": "^9.32.0",
     "eslint-config-next": "^15.4.4",
     "firebase-admin": "^13.4.0",
@@ -28,6 +28,7 @@
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.1.1",
     "typescript": "^5.8.3",
+    "uuid": "^11.1.0",
     "xlsx": "^0.18.5",
     "zod": "^4.0.11"
   }

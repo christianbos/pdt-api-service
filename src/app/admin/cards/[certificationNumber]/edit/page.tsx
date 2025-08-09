@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import CardForm from '@/components/CardForm'
 import { Card, CreateCardRequest } from '@/types/card'
+import { CardImageGallery } from '@/components/admin/CardImageGallery'
+import { BatchImageUploader } from '@/components/admin/BatchImageUploader'
 
 interface PageProps {
   params: Promise<{ certificationNumber: string }>
@@ -14,6 +16,7 @@ export default function EditCardPage({ params }: PageProps) {
   const [card, setCard] = useState<Card | null>(null)
   const [loading, setLoading] = useState(true)
   const [certificationNumber, setCertificationNumber] = useState<string>('')
+  const [activeTab, setActiveTab] = useState<'info' | 'images'>('info')
 
   useEffect(() => {
     const fetchParams = async () => {
@@ -118,11 +121,58 @@ export default function EditCardPage({ params }: PageProps) {
         </div>
       </div>
 
-      <CardForm
-        initialData={card}
-        onSubmit={handleSubmit}
-        submitLabel="Actualizar Carta"
-      />
+      {/* Tabs */}
+      <ul className="nav nav-tabs mb-4">
+        <li className="nav-item">
+          <button 
+            type="button"
+            className={`nav-link ${activeTab === 'info' ? 'active' : ''}`}
+            onClick={() => setActiveTab('info')}
+          >
+            <svg width="16" height="16" className="me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Información de la Carta
+          </button>
+        </li>
+        <li className="nav-item">
+          <button 
+            type="button"
+            className={`nav-link ${activeTab === 'images' ? 'active' : ''}`}
+            onClick={() => setActiveTab('images')}
+          >
+            <svg width="16" height="16" className="me-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Gestión de Imágenes
+          </button>
+        </li>
+      </ul>
+
+      {/* Contenido de tabs */}
+      {activeTab === 'info' ? (
+        <CardForm
+          initialData={card}
+          onSubmit={handleSubmit}
+          submitLabel="Actualizar Carta"
+        />
+      ) : (
+        <div className="space-y-4">
+          {/* Galería de imágenes existentes */}
+          <CardImageGallery 
+            images={card.images}
+            certificationNumber={card.certificationNumber}
+          />
+          
+          {/* Uploader por lotes */}
+          <div className="mt-4">
+            <BatchImageUploader 
+              certificationNumber={card.certificationNumber}
+              onUploadComplete={() => fetchCard()}
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

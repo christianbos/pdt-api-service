@@ -76,7 +76,74 @@ export interface Card {
   edges: Edges;
   corners: Corners;
   centering: Centering;
-  images?: string[];
+  images?: CardImages;
+}
+
+export type ImageType = 
+  | 'front' 
+  | 'back' 
+  | 'front_corners' 
+  | 'back_corners'
+  | 'front_corner_topLeft'
+  | 'front_corner_topRight'
+  | 'front_corner_bottomLeft'
+  | 'front_corner_bottomRight'
+  | 'back_corner_topLeft'
+  | 'back_corner_topRight'
+  | 'back_corner_bottomLeft'
+  | 'back_corner_bottomRight'
+  | 'front_edges' 
+  | 'back_edges' 
+  | 'front_surface' 
+  | 'back_surface'
+
+export interface ImageMetadata {
+  publicId: string
+  url: string
+  width: number
+  height: number
+  format: string
+  size: number
+  uploadedAt: string
+}
+
+export interface CardImages {
+  main?: {
+    front?: ImageMetadata
+    back?: ImageMetadata
+  }
+  specialized?: {
+    front_corners?: ImageMetadata
+    back_corners?: ImageMetadata
+    front_corner_topLeft?: ImageMetadata
+    front_corner_topRight?: ImageMetadata
+    front_corner_bottomLeft?: ImageMetadata
+    front_corner_bottomRight?: ImageMetadata
+    back_corner_topLeft?: ImageMetadata
+    back_corner_topRight?: ImageMetadata
+    back_corner_bottomLeft?: ImageMetadata
+    back_corner_bottomRight?: ImageMetadata
+    front_edges?: ImageMetadata
+    back_edges?: ImageMetadata
+    front_surface?: ImageMetadata
+    back_surface?: ImageMetadata
+  }
+}
+
+export interface CloudinaryWebhookPayload {
+  notification_type: string
+  resource_type: string
+  public_id: string
+  version: number
+  width: number
+  height: number
+  format: string
+  bytes: number
+  url: string
+  secure_url: string
+  created_at: string
+  folder?: string
+  tags?: string[]
 }
 
 export interface CreateCardRequest {
