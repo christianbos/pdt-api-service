@@ -10,11 +10,33 @@ const firebaseAdminConfig = {
   storageBucket: `${process.env.FIREBASE_PROJECT_ID || 'demo-project'}.firebasestorage.app`
 }
 
+// Initialize Firebase only once
 if (getApps().length === 0) {
   initializeApp(firebaseAdminConfig)
 }
 
-export const db = getFirestore()
+// Get Firestore instance (initialized once)
+const db = getFirestore()
+
+// Configure settings only once, right after initialization
+try {
+  db.settings({
+    ignoreUndefinedProperties: true,
+  })
+} catch (error) {
+  // Settings already configured, ignore error
+  console.log('Firestore settings already configured')
+}
+
+// Simple cleanup function for memory management
+export function cleanupFirebaseConnection() {
+  // Force garbage collection periodically if available
+  if (global.gc) {
+    setImmediate(() => global.gc!())
+  }
+}
+
+export { db }
 
 export const COLLECTIONS = {
   CARDS: 'cards',

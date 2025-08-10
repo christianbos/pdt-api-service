@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/firebase'
 import { CloudinaryWebhookPayload, ImageType, ImageMetadata } from '@/types/card'
-import { DirectUploadService } from '@/lib/directUpload'
+import { ImageValidationService } from '@/lib/imageValidation'
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     const certificationNumber = parseInt(publicIdParts[1])
     const imageType = publicIdParts[2] as ImageType
 
-    if (isNaN(certificationNumber) || !DirectUploadService.validateImageType(imageType)) {
+    if (isNaN(certificationNumber) || !ImageValidationService.validateImageType(imageType)) {
       return NextResponse.json({ error: 'Invalid certification number or image type' }, { status: 400 })
     }
 
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Determinar la categoría y actualizar la estructura de imágenes
-    const category = DirectUploadService.getImageCategory(imageType)
+    const category = ImageValidationService.getImageCategory(imageType)
     
     // Obtener las imágenes actuales o crear estructura vacía
     const currentCard = cardDoc.data()

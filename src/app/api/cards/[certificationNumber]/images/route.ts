@@ -133,18 +133,39 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    const uploadPromises = files.map(async (file, index) => {
-      const buffer = Buffer.from(await file.arrayBuffer())
+    // Process uploads in chunks to prevent memory overload
+    const UPLOAD_CHUNK_SIZE = 3 // Upload max 3 files simultaneously
+    const uploadResults = []
+    
+    for (let i = 0; i < files.length; i += UPLOAD_CHUNK_SIZE) {
+      const fileChunk = files.slice(i, i + UPLOAD_CHUNK_SIZE)
       
-      return await FirebaseStorageService.uploadImage(
-        buffer,
-        certNumber,
-        'front' as ImageType, // Default type for legacy uploads
-        file.name
-      )
-    })
-
-    const uploadResults = await Promise.all(uploadPromises)
+      const chunkPromises = fileChunk.map(async (file, index) => {
+        const buffer = Buffer.from(await file.arrayBuffer())
+        
+        try {
+          return await FirebaseStorageService.uploadImage(
+            buffer,
+            certNumber,
+            'front' as ImageType, // Default type for legacy uploads
+            file.name
+          )
+        } finally {
+          // Force cleanup after each upload
+          if (global.gc) {
+            setImmediate(() => global.gc!())
+          }
+        }
+      })
+      
+      const chunkResults = await Promise.all(chunkPromises)
+      uploadResults.push(...chunkResults)
+      
+      // Add small delay between chunks
+      if (i + UPLOAD_CHUNK_SIZE < files.length) {
+        await new Promise(resolve => setTimeout(resolve, 200))
+      }
+    }
     const imageUrls = uploadResults.map(result => result.publicUrl)
 
     // Mantener compatibilidad con el formato anterior

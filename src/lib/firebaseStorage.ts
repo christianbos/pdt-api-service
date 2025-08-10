@@ -157,7 +157,7 @@ export class FirebaseStorageService {
   }
 
   /**
-   * Eliminar todas las imágenes de una carta
+   * Eliminar todas las imágenes de una carta (con backpressure)
    */
   static async deleteCardImages(certificationNumber: number): Promise<void> {
     try {
@@ -179,13 +179,53 @@ export class FirebaseStorageService {
         return
       }
 
-      // Eliminar todos los archivos en paralelo
-      await Promise.all(allFiles.map(file => file.delete({ ignoreNotFound: true })))
+      // Process deletions in chunks to avoid memory overload
+      await this.processInChunks(
+        allFiles,
+        async (fileChunk) => {
+          await Promise.all(
+            fileChunk.map(file => file.delete({ ignoreNotFound: true }))
+          )
+        },
+        10 // Process 10 files at a time
+      )
       
       console.log(`Deleted ${allFiles.length} images for card ${certificationNumber}`)
     } catch (error) {
       console.error('Error deleting card images:', error)
       throw new Error(`Failed to delete card images: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    }
+  }
+
+  /**
+   * Process array items in chunks with backpressure control
+   */
+  private static async processInChunks<T>(
+    items: T[],
+    processor: (chunk: T[]) => Promise<void>,
+    chunkSize: number = 10,
+    delayMs: number = 100
+  ): Promise<void> {
+    for (let i = 0; i < items.length; i += chunkSize) {
+      const chunk = items.slice(i, i + chunkSize)
+      
+      try {
+        await processor(chunk)
+        
+        // Small delay to prevent overwhelming the system
+        if (i + chunkSize < items.length && delayMs > 0) {
+          await new Promise(resolve => setTimeout(resolve, delayMs))
+        }
+        
+        // Force garbage collection every few chunks
+        if (i > 0 && i % (chunkSize * 5) === 0 && global.gc) {
+          global.gc()
+        }
+        
+      } catch (error) {
+        console.error(`Error processing chunk ${i}-${i + chunkSize}:`, error)
+        throw error
+      }
     }
   }
 

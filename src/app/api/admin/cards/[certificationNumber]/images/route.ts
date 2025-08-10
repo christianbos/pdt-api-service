@@ -4,13 +4,19 @@ import { ImageValidationService } from '@/lib/imageValidation'
 import { validateAdminAccess } from '@/lib/auth'
 import { ImageType, ImageMetadata } from '@/types/card'
 import { FirebaseStorageService } from '@/lib/firebaseStorage'
+import { StreamingUploadService } from '@/lib/streamingUpload'
+import { MemoryMonitor } from '@/middleware/memoryMonitor'
+import { TimeoutService } from '@/lib/timeoutService'
 
 interface RouteParams {
   params: Promise<{ certificationNumber: string }>
 }
 
 export async function POST(request: NextRequest, { params }: RouteParams) {
-  try {
+  return MemoryMonitor.wrapResponse(request, async () => {
+    StreamingUploadService.logMemoryStats('Upload Start')
+    
+    try {
     // Validar acceso administrativo
     if (!validateAdminAccess(request)) {
       return NextResponse.json(
@@ -68,9 +74,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    if (file.size > 100 * 1024 * 1024) { // 100MB límite para Firebase Storage
+    if (file.size > 50 * 1024 * 1024) { // Reducido a 50MB para mejor memory management
       return NextResponse.json(
-        { error: 'File size must be less than 100MB' },
+        { error: 'File size must be less than 50MB' },
         { status: 400 }
       )
     }
@@ -88,23 +94,34 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    // Convertir archivo a buffer
-    const buffer = Buffer.from(await file.arrayBuffer())
+    StreamingUploadService.logMemoryStats('Before Buffer Processing')
 
-    console.log('Uploading to Firebase Storage:', {
-      certificationNumber: certNumber,
-      fileSize: buffer.length,
-      imageType: validImageType,
-      fileName: file.name
-    })
+    // Use streaming upload service with timeout for memory-safe processing
+    const uploadResult = await TimeoutService.forUpload(
+      () => StreamingUploadService.convertToBufferSafe(
+        file,
+        async (buffer) => {
+          console.log('Uploading to Firebase Storage:', {
+            certificationNumber: certNumber,
+            fileSize: buffer.length,
+            imageType: validImageType,
+            fileName: file.name
+          })
 
-    // Upload a Firebase Storage
-    const uploadResult = await FirebaseStorageService.uploadImage(
-      buffer,
-      certNumber,
-      validImageType,
-      file.name
+          StreamingUploadService.logMemoryStats('During Firebase Upload')
+
+          return await FirebaseStorageService.uploadImage(
+            buffer,
+            certNumber,
+            validImageType,
+            file.name
+          )
+        }
+      ),
+      file.size
     )
+
+    StreamingUploadService.logMemoryStats('After Upload')
 
     console.log('Firebase Storage upload success:', {
       path: uploadResult.path,
@@ -122,8 +139,16 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       uploadedAt: new Date().toISOString()
     }
 
-    // Actualizar metadata en Firestore
-    await CardService.updateCardImage(certNumber, validImageType, imageMetadata)
+    // Actualizar metadata en Firestore with timeout
+    await TimeoutService.forDatabase(
+      () => CardService.updateCardImage(certNumber, validImageType, imageMetadata),
+      'write'
+    )
+
+    StreamingUploadService.logMemoryStats('Upload Complete')
+    
+    // Force cleanup
+    StreamingUploadService.forceGarbageCollection()
 
     return NextResponse.json({
       message: 'Image uploaded successfully to Firebase Storage',
@@ -135,6 +160,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
   } catch (error: any) {
     console.error('Firebase Storage admin upload error:', error)
+    StreamingUploadService.logMemoryStats('Upload Error')
+    
+    // Force cleanup on error
+    StreamingUploadService.forceGarbageCollection()
+    
     return NextResponse.json(
       { 
         error: 'Upload failed', 
@@ -143,4 +173,5 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       { status: 500 }
     )
   }
+  })
 }
