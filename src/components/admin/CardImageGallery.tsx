@@ -82,16 +82,12 @@ export function CardImageGallery({ images, certificationNumber }: CardImageGalle
   }
 
   const getImageUrl = (image: any) => {
-    if (image.category === 'main') {
-      const certId = certificationNumber;
-      const imageType = image.type;
-      const dimensions = '719x999';
-      const fileName = `${certId}_${imageType}_${dimensions}.webp`;
-      const path = `cards/${certId}/full/${fileName}`;
-      return generateFirebaseStorageUrl(path, image.metadata.token); // Use token if it exists
+    // Use Firebase Storage with token if available
+    if (image.metadata.token) {
+      return generateFirebaseStorageUrl(image.metadata.publicId, image.metadata.token);
     }
-    // Fallback for other images and if main logic fails
-    return image.metadata.thumbnailUrl || image.metadata.url || generateThumbnailUrl(image.metadata.publicId);
+    // Fallback to public URL or generate Firebase URL without token
+    return image.metadata.url || generateFirebaseStorageUrl(image.metadata.publicId);
   };
 
   return (
@@ -129,21 +125,54 @@ export function CardImageGallery({ images, certificationNumber }: CardImageGalle
                         transition: 'transform 0.2s ease'
                       }}
                       onError={(e) => {
-                        const fallbackUrl = generateThumbnailUrl(image.metadata.publicId)
+                        const currentSrc = e.currentTarget.src
+                        const publicId = image.metadata?.publicId
+                        
                         console.error('Error loading image:', {
-                          original: e.currentTarget.src,
-                          fallback: fallbackUrl,
-                          metadata: image.metadata
+                          original: currentSrc,
+                          publicId: publicId || 'undefined',
+                          metadata: image.metadata || 'undefined',
+                          imageType: image.type,
+                          imageCategory: image.category
                         })
-                        // Try with the generated fallback URL
-                        if (e.currentTarget.src !== fallbackUrl) {
-                          e.currentTarget.src = fallbackUrl
+                        
+                        // Only try fallbacks if we have valid metadata
+                        if (!image.metadata || !publicId) {
+                          console.error('Cannot create fallbacks - missing metadata or publicId')
+                          return
+                        }
+                        
+                        // Try different fallback URLs
+                        const fallbacks = [
+                          // Try with token if not already used
+                          image.metadata.token && !currentSrc.includes('token=') ? 
+                            generateFirebaseStorageUrl(publicId, image.metadata.token) : null,
+                          // Try without token
+                          !currentSrc.includes('token=') ? 
+                            generateFirebaseStorageUrl(publicId) : null,
+                          // Try thumbnail URL
+                          generateThumbnailUrl(publicId),
+                          // Try original metadata URL
+                          image.metadata.url
+                        ].filter(Boolean)
+                        
+                        // Find first fallback that hasn't been tried yet
+                        const nextFallback = fallbacks.find(url => url !== currentSrc)
+                        if (nextFallback) {
+                          console.log('Trying fallback URL:', nextFallback)
+                          e.currentTarget.src = nextFallback
+                        } else {
+                          console.error('All fallbacks exhausted for image:', publicId)
                         }
                       }}
-                      onClick={() => setSelectedImage({ 
-                        url: image.metadata.url || generateMediumUrl(image.metadata.publicId), 
-                        publicId: image.metadata.publicId 
-                      })}
+                      onClick={() => {
+                        if (image.metadata?.publicId) {
+                          setSelectedImage({ 
+                            url: image.metadata.url || generateMediumUrl(image.metadata.publicId), 
+                            publicId: image.metadata.publicId 
+                          })
+                        }
+                      }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.transform = 'scale(1.05)'
                       }}

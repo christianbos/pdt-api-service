@@ -297,6 +297,426 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
         </div>
       </div>
 
+      {/* Edges */}
+      <div className="card mb-4">
+        <div className="card-header">
+          <h3 className="card-title mb-0">Edges</h3>
+        </div>
+        <div className="card-body">
+          <div className="row g-3">
+            <div className="col-md-4">
+              <label className="form-label">Score Final</label>
+              <input
+                type="number"
+                step="0.5"
+                min="0"
+                max="10"
+                value={formData.edges.finalScore}
+                onChange={(e) => updateFormData('edges.finalScore', parseFloat(e.target.value))}
+                className="form-control"
+              />
+            </div>
+            <div className="col-md-4">
+              <label className="form-label">Front Weight</label>
+              <input
+                type="number"
+                step="0.1"
+                min="0"
+                max="1"
+                value={formData.edges.frontWeight}
+                onChange={(e) => updateFormData('edges.frontWeight', parseFloat(e.target.value))}
+                className="form-control"
+              />
+            </div>
+            <div className="col-md-4">
+              <label className="form-label">Back Weight</label>
+              <input
+                type="number"
+                step="0.1"
+                min="0"
+                max="1"
+                value={formData.edges.backWeight}
+                onChange={(e) => updateFormData('edges.backWeight', parseFloat(e.target.value))}
+                className="form-control"
+              />
+            </div>
+          </div>
+          
+          <div className="row g-3 mt-3">
+            <div className="col-md-6">
+              <h5 className="card-subtitle mb-3">Front</h5>
+              <div className="row g-2">
+                <div className="col-6">
+                  <label className="form-label">Left</label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="10"
+                    value={formData.edges.front.left}
+                    onChange={(e) => updateFormData('edges.front.left', parseFloat(e.target.value))}
+                    className="form-control"
+                  />
+                </div>
+                <div className="col-6">
+                  <label className="form-label">Top</label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="10"
+                    value={formData.edges.front.top}
+                    onChange={(e) => updateFormData('edges.front.top', parseFloat(e.target.value))}
+                    className="form-control"
+                  />
+                </div>
+                <div className="col-6">
+                  <label className="form-label">Right</label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="10"
+                    value={formData.edges.front.right}
+                    onChange={(e) => updateFormData('edges.front.right', parseFloat(e.target.value))}
+                    className="form-control"
+                  />
+                </div>
+                <div className="col-6">
+                  <label className="form-label">Bottom</label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="10"
+                    value={formData.edges.front.bottom}
+                    onChange={(e) => updateFormData('edges.front.bottom', parseFloat(e.target.value))}
+                    className="form-control"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="col-md-6">
+              <h5 className="card-subtitle mb-3">Back</h5>
+              <div className="row g-2">
+                <div className="col-6">
+                  <label className="form-label">Left</label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="10"
+                    value={formData.edges.back.left}
+                    onChange={(e) => updateFormData('edges.back.left', parseFloat(e.target.value))}
+                    className="form-control"
+                  />
+                </div>
+                <div className="col-6">
+                  <label className="form-label">Top</label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="10"
+                    value={formData.edges.back.top}
+                    onChange={(e) => updateFormData('edges.back.top', parseFloat(e.target.value))}
+                    className="form-control"
+                  />
+                </div>
+                <div className="col-6">
+                  <label className="form-label">Right</label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="10"
+                    value={formData.edges.back.right}
+                    onChange={(e) => updateFormData('edges.back.right', parseFloat(e.target.value))}
+                    className="form-control"
+                  />
+                </div>
+                <div className="col-6">
+                  <label className="form-label">Bottom</label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="10"
+                    value={formData.edges.back.bottom}
+                    onChange={(e) => updateFormData('edges.back.bottom', parseFloat(e.target.value))}
+                    className="form-control"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Corners */}
+      <div className="card mb-4">
+        <div className="card-header">
+          <h3 className="card-title mb-0">Corners</h3>
+        </div>
+        <div className="card-body">
+          <div className="row g-3">
+            <div className="col-md-4">
+              <label className="form-label">Score Final</label>
+              <input
+                type="number"
+                step="0.5"
+                min="0"
+                max="10"
+                value={formData.corners.finalScore}
+                onChange={(e) => updateFormData('corners.finalScore', parseFloat(e.target.value))}
+                className="form-control"
+              />
+            </div>
+            <div className="col-md-4">
+              <label className="form-label">Front Weight</label>
+              <input
+                type="number"
+                step="0.1"
+                min="0"
+                max="1"
+                value={formData.corners.frontWeight}
+                onChange={(e) => updateFormData('corners.frontWeight', parseFloat(e.target.value))}
+                className="form-control"
+              />
+            </div>
+            <div className="col-md-4">
+              <label className="form-label">Back Weight</label>
+              <input
+                type="number"
+                step="0.1"
+                min="0"
+                max="1"
+                value={formData.corners.backWeight}
+                onChange={(e) => updateFormData('corners.backWeight', parseFloat(e.target.value))}
+                className="form-control"
+              />
+            </div>
+          </div>
+          
+          <div className="row g-3 mt-3">
+            <div className="col-md-6">
+              <h5 className="card-subtitle mb-3">Front</h5>
+              <div className="row g-2">
+                <div className="col-6">
+                  <label className="form-label">Top Left</label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="10"
+                    value={formData.corners.front.topLeft}
+                    onChange={(e) => updateFormData('corners.front.topLeft', parseFloat(e.target.value))}
+                    className="form-control"
+                  />
+                </div>
+                <div className="col-6">
+                  <label className="form-label">Top Right</label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="10"
+                    value={formData.corners.front.topRight}
+                    onChange={(e) => updateFormData('corners.front.topRight', parseFloat(e.target.value))}
+                    className="form-control"
+                  />
+                </div>
+                <div className="col-6">
+                  <label className="form-label">Bottom Left</label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="10"
+                    value={formData.corners.front.bottomLeft}
+                    onChange={(e) => updateFormData('corners.front.bottomLeft', parseFloat(e.target.value))}
+                    className="form-control"
+                  />
+                </div>
+                <div className="col-6">
+                  <label className="form-label">Bottom Right</label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="10"
+                    value={formData.corners.front.bottomRight}
+                    onChange={(e) => updateFormData('corners.front.bottomRight', parseFloat(e.target.value))}
+                    className="form-control"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="col-md-6">
+              <h5 className="card-subtitle mb-3">Back</h5>
+              <div className="row g-2">
+                <div className="col-6">
+                  <label className="form-label">Top Left</label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="10"
+                    value={formData.corners.back.topLeft}
+                    onChange={(e) => updateFormData('corners.back.topLeft', parseFloat(e.target.value))}
+                    className="form-control"
+                  />
+                </div>
+                <div className="col-6">
+                  <label className="form-label">Top Right</label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="10"
+                    value={formData.corners.back.topRight}
+                    onChange={(e) => updateFormData('corners.back.topRight', parseFloat(e.target.value))}
+                    className="form-control"
+                  />
+                </div>
+                <div className="col-6">
+                  <label className="form-label">Bottom Left</label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="10"
+                    value={formData.corners.back.bottomLeft}
+                    onChange={(e) => updateFormData('corners.back.bottomLeft', parseFloat(e.target.value))}
+                    className="form-control"
+                  />
+                </div>
+                <div className="col-6">
+                  <label className="form-label">Bottom Right</label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="10"
+                    value={formData.corners.back.bottomRight}
+                    onChange={(e) => updateFormData('corners.back.bottomRight', parseFloat(e.target.value))}
+                    className="form-control"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Centering */}
+      <div className="card mb-4">
+        <div className="card-header">
+          <h3 className="card-title mb-0">Centering</h3>
+        </div>
+        <div className="card-body">
+          <div className="row g-3">
+            <div className="col-md-4">
+              <label className="form-label">Front Score</label>
+              <input
+                type="number"
+                step="0.5"
+                min="0"
+                max="10"
+                value={formData.centering.frontScore}
+                onChange={(e) => updateFormData('centering.frontScore', parseFloat(e.target.value))}
+                className="form-control"
+              />
+            </div>
+            <div className="col-md-4">
+              <label className="form-label">Back Score</label>
+              <input
+                type="number"
+                step="0.5"
+                min="0"
+                max="10"
+                value={formData.centering.backScore}
+                onChange={(e) => updateFormData('centering.backScore', parseFloat(e.target.value))}
+                className="form-control"
+              />
+            </div>
+            <div className="col-md-4">
+              <label className="form-label">Final Score</label>
+              <input
+                type="number"
+                step="0.5"
+                min="0"
+                max="10"
+                value={formData.centering.finalScore}
+                onChange={(e) => updateFormData('centering.finalScore', parseFloat(e.target.value))}
+                className="form-control"
+              />
+            </div>
+          </div>
+          
+          <div className="row g-3 mt-3">
+            <div className="col-md-6">
+              <h5 className="card-subtitle mb-3">Front</h5>
+              <div className="row g-2">
+                <div className="col-6">
+                  <label className="form-label">Left</label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="10"
+                    value={formData.centering.front.left}
+                    onChange={(e) => updateFormData('centering.front.left', parseFloat(e.target.value))}
+                    className="form-control"
+                  />
+                </div>
+                <div className="col-6">
+                  <label className="form-label">Top</label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="10"
+                    value={formData.centering.front.top}
+                    onChange={(e) => updateFormData('centering.front.top', parseFloat(e.target.value))}
+                    className="form-control"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="col-md-6">
+              <h5 className="card-subtitle mb-3">Back</h5>
+              <div className="row g-2">
+                <div className="col-6">
+                  <label className="form-label">Left</label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="10"
+                    value={formData.centering.back.left}
+                    onChange={(e) => updateFormData('centering.back.left', parseFloat(e.target.value))}
+                    className="form-control"
+                  />
+                </div>
+                <div className="col-6">
+                  <label className="form-label">Top</label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    min="0"
+                    max="10"
+                    value={formData.centering.back.top}
+                    onChange={(e) => updateFormData('centering.back.top', parseFloat(e.target.value))}
+                    className="form-control"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Submit Button */}
       <div className="d-flex justify-content-end">
         <button
