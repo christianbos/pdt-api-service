@@ -117,11 +117,14 @@ export default function CardDetailPage({ params }: PageProps) {
                   <p><strong>Set:</strong> {card.set}</p>
                   <p><strong>Número:</strong> <code>{card.number}</code></p>
                   <p><strong>Año:</strong> {card.year}</p>
+                  <p><strong>TCG:</strong> {card.tcg || 'N/A'}</p>
                 </div>
                 <div className="col-md-6">
                   <p><strong>Rareza:</strong> <span className="badge bg-light text-dark">{card.rarity}</span></p>
+                  <p><strong>Texto de Grado:</strong> {card.gradeText || 'N/A'}</p>
                   <p><strong>Versión:</strong> {card.version}</p>
                   <p><strong>Scan 3D:</strong> {card.has3DScan ? 'Sí' : 'No'}</p>
+                  <p><strong>Fecha de Gradeo:</strong> {card.gradeDate ? new Date(card.gradeDate).toLocaleDateString('es-ES') : 'N/A'}</p>
                   <p><strong>Creado:</strong> {new Date(card.createdAt).toLocaleString('es-ES')}</p>
                 </div>
               </div>
@@ -152,6 +155,22 @@ export default function CardDetailPage({ params }: PageProps) {
           </div>
         </div>
       </div>
+
+      {/* Notas si existen */}
+      {card.notes && (
+        <div className="row mt-4">
+          <div className="col-12">
+            <div className="card">
+              <div className="card-header">
+                <h5 className="mb-0">Notas</h5>
+              </div>
+              <div className="card-body">
+                <p className="mb-0">{card.notes}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="mt-4">
         <h4 className="mb-3">Detalles de Graduación</h4>

@@ -11,6 +11,10 @@ interface ExcelCardRow {
   certificationNumber: number
   version: number
   has3DScan: boolean
+  tcg?: string
+  gradeText?: string
+  notes?: string
+  gradeDate?: string
   // Surface
   surfaceFinalScore: number
   surfaceBent: number
@@ -83,6 +87,10 @@ export class ExcelImportService {
       certificationNumber: row.certificationNumber,
       version: row.version,
       has3DScan: row.has3DScan,
+      tcg: row.tcg,
+      gradeText: row.gradeText,
+      notes: row.notes,
+      gradeDate: row.gradeDate,
       surface: {
         finalScore: row.surfaceFinalScore,
         bent: row.surfaceBent,

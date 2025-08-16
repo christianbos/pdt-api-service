@@ -21,6 +21,10 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
     certificationNumber: initialData?.certificationNumber || 0,
     version: initialData?.version || 1,
     has3DScan: initialData?.has3DScan || false,
+    tcg: initialData?.tcg || '',
+    gradeText: initialData?.gradeText || '',
+    notes: initialData?.notes || '',
+    gradeDate: initialData?.gradeDate || new Date().toISOString(),
     surface: initialData?.surface || {
       finalScore: 10,
       bent: 10,
@@ -171,6 +175,45 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 onChange={(e) => updateFormData('version', parseInt(e.target.value))}
                 className="form-control"
                 required
+              />
+            </div>
+            <div className="col-md-6">
+              <label className="form-label">TCG</label>
+              <input
+                type="text"
+                value={formData.tcg}
+                onChange={(e) => updateFormData('tcg', e.target.value)}
+                className="form-control"
+                placeholder="Pokemon, Yu-Gi-Oh, etc."
+              />
+            </div>
+            <div className="col-md-6">
+              <label className="form-label">Texto de Grado</label>
+              <input
+                type="text"
+                value={formData.gradeText}
+                onChange={(e) => updateFormData('gradeText', e.target.value)}
+                className="form-control"
+                placeholder="NEAR MINT, EXCELLENT, etc."
+              />
+            </div>
+            <div className="col-md-6">
+              <label className="form-label">Fecha de Gradeo</label>
+              <input
+                type="datetime-local"
+                value={formData.gradeDate?.slice(0, 16) || ''}
+                onChange={(e) => updateFormData('gradeDate', new Date(e.target.value).toISOString())}
+                className="form-control"
+              />
+            </div>
+            <div className="col-md-6">
+              <label className="form-label">Notas</label>
+              <textarea
+                value={formData.notes || ''}
+                onChange={(e) => updateFormData('notes', e.target.value || '')}
+                className="form-control"
+                rows={2}
+                placeholder="Notas adicionales (opcional)"
               />
             </div>
             <div className="col-12">

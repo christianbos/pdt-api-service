@@ -72,6 +72,10 @@ export interface Card {
   certificationNumber: number;
   version: number;
   has3DScan: boolean;
+  tcg?: string;
+  gradeText?: string;
+  notes?: string | null;
+  gradeDate?: string;
   surface: Surface;
   edges: Edges;
   corners: Corners;
@@ -156,6 +160,10 @@ export interface CreateCardRequest {
   certificationNumber: number;
   version: number;
   has3DScan: boolean;
+  tcg?: string;
+  gradeText?: string;
+  notes?: string | null;
+  gradeDate?: string;
   surface: Surface;
   edges: Edges;
   corners: Corners;
