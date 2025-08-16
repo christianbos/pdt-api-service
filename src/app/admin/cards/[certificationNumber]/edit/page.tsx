@@ -162,6 +162,7 @@ export default function EditCardPage({ params }: PageProps) {
           <CardImageGallery 
             images={card.images}
             certificationNumber={card.certificationNumber}
+            onImageDeleted={fetchCard}
           />
           
           {/* Uploader por lotes */}

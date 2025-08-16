@@ -10,14 +10,14 @@ export default function AdminDashboard() {
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [totalCards, setTotalCards] = useState(0)
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>(null)
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>('desc')
   const cardsPerPage = 20
 
   const fetchCards = useCallback(async () => {
     try {
       setLoading(true)
       const offset = (currentPage - 1) * cardsPerPage
-      let url = `/api/cards?limit=${cardsPerPage}&offset=${offset}&sort=asc`
+      let url = `/api/cards?limit=${cardsPerPage}&offset=${offset}`
       if (sortOrder) {
         url += `&sort=${sortOrder}`
       }

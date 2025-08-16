@@ -49,18 +49,14 @@ export class CardService {
     }
   }
 
-  static async getAllCards(limit = 20, offset = 0, sort: 'asc' | 'desc' | null = null): Promise<{ cards: Card[], total: number }> {
+  static async getAllCards(limit = 20, offset = 0, sort: 'asc' | 'desc' | null = 'desc'): Promise<{ cards: Card[], total: number }> {
     try {
       const collection = db.collection(COLLECTIONS.CARDS)
       
       const countSnapshot = await collection.count().get()
       const total = countSnapshot.data().count
 
-      let query = collection.orderBy('createdAt', 'desc')
-
-      if (sort) {
-        query = collection.orderBy('certificationNumber', sort)
-      }
+      let query = collection.orderBy('certificationNumber', sort || 'desc')
 
       const snapshot = await query
         .offset(offset)

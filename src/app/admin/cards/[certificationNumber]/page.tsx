@@ -293,6 +293,7 @@ export default function CardDetailPage({ params }: PageProps) {
         <CardImageGallery 
           images={card.images}
           certificationNumber={card.certificationNumber}
+          onImageDeleted={fetchCard}
         />
       </div>
 

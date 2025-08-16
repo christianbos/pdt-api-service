@@ -7,10 +7,39 @@ import { useState } from 'react'
 interface CardImageGalleryProps {
   images?: CardImages
   certificationNumber: number
+  onImageDeleted?: () => void
 }
 
-export function CardImageGallery({ images, certificationNumber }: CardImageGalleryProps) {
+export function CardImageGallery({ images, certificationNumber, onImageDeleted }: CardImageGalleryProps) {
   const [selectedImage, setSelectedImage] = useState<{ url: string; publicId: string } | null>(null)
+  const [deleting, setDeleting] = useState<string | null>(null)
+
+  const handleDeleteImage = async (imageType: string) => {
+    if (!confirm('¿Estás seguro de que quieres eliminar esta imagen?')) {
+      return
+    }
+
+    setDeleting(imageType)
+    try {
+      const response = await fetch(`/api/cards/${certificationNumber}/images/${imageType}`, {
+        method: 'DELETE',
+        headers: {
+          'x-api-key': process.env.NEXT_PUBLIC_API_KEY || ''
+        }
+      })
+
+      if (response.ok) {
+        onImageDeleted?.()
+      } else {
+        alert('Error al eliminar la imagen')
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      alert('Error al eliminar la imagen')
+    } finally {
+      setDeleting(null)
+    }
+  }
 
   if (!images || (!images.main && !images.specialized)) {
     return (
@@ -114,6 +143,24 @@ export function CardImageGallery({ images, certificationNumber }: CardImageGalle
               {allImages.map((image) => (
                 <div key={`${image.category}-${image.type}`} className="col-6 col-md-4 col-lg-3">
                   <div className="position-relative">
+                    {/* Delete button */}
+                    <button
+                      className="btn btn-danger btn-sm position-absolute top-0 end-0 m-2"
+                      style={{ zIndex: 10, opacity: 0.9 }}
+                      onClick={() => handleDeleteImage(image.type)}
+                      disabled={deleting === image.type}
+                      title="Eliminar imagen"
+                    >
+                      {deleting === image.type ? (
+                        <div className="spinner-border spinner-border-sm" role="status">
+                          <span className="visually-hidden">Eliminando...</span>
+                        </div>
+                      ) : (
+                        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      )}
+                    </button>
                     <img
                       src={getImageUrl(image)}
                       alt={image.label}
