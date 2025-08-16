@@ -36,7 +36,7 @@ export class CardService {
       const snapshot = await collection
         .where('certificationNumber', '==', certificationNumber)
         .limit(1)
-        .get({ source: 'server' })
+        .get()
 
       if (snapshot.empty) {
         return null
@@ -61,7 +61,7 @@ export class CardService {
       const snapshot = await query
         .offset(offset)
         .limit(limit)
-        .get({ source: 'server' })
+        .get()
 
       const cards = snapshot.docs.map(doc => doc.data() as Card)
 
@@ -90,7 +90,7 @@ export class CardService {
       updatedAt: new Date().toISOString(),
     })
 
-    const updatedDoc = await docRef.get({ source: 'server' })
+    const updatedDoc = await docRef.get()
     return updatedDoc.data() as Card
   }
 
@@ -203,7 +203,7 @@ export class CardService {
     const snapshot = await collection
       .where(`images.${category}.${imageType}`, '!=', null)
       .limit(limit)
-      .get({ source: 'server' })
+      .get()
 
     return snapshot.docs.map(doc => doc.data() as Card)
   }
@@ -253,7 +253,7 @@ export class CardService {
       return collection.where(`images.specialized.${imageType}`, '!=', null)
     })
     
-    const snapshot = await cornerQueries[0].limit(limit).get({ source: 'server' })
+    const snapshot = await cornerQueries[0].limit(limit).get()
     const cards = snapshot.docs.map(doc => doc.data() as Card)
     
     return cards.filter(card => {
