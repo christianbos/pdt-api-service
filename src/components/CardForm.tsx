@@ -11,6 +11,24 @@ interface CardFormProps {
 }
 
 export default function CardForm({ initialData, onSubmit, submitLabel }: CardFormProps) {
+  // Helper function to merge nested objects with defaults
+  const mergeWithDefaults = (data: any, defaults: any): any => {
+    if (!data) return defaults
+    if (typeof data !== 'object' || typeof defaults !== 'object') return data
+    
+    const merged = { ...defaults }
+    for (const key in data) {
+      if (data[key] !== null && data[key] !== undefined) {
+        if (typeof data[key] === 'object' && typeof defaults[key] === 'object') {
+          merged[key] = mergeWithDefaults(data[key], defaults[key])
+        } else {
+          merged[key] = data[key]
+        }
+      }
+    }
+    return merged
+  }
+
   const [formData, setFormData] = useState<CreateCardRequest>({
     name: initialData?.name || '',
     set: initialData?.set || '',
@@ -25,34 +43,34 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
     gradeText: initialData?.gradeText || '',
     notes: initialData?.notes || '',
     gradeDate: initialData?.gradeDate || new Date().toISOString(),
-    surface: initialData?.surface || {
-      finalScore: 10,
-      bent: 10,
+    surface: mergeWithDefaults(initialData?.surface, {
+      finalScore: null,
+      bent: null,
       bentWeight: null,
-      front: { color: 10, scratches: 10, colorWeight: 0.3, scratchesWeight: 0.7, totalWeight: 0.45 },
-      back: { color: 10, scratches: 10, colorWeight: 0.3, scratchesWeight: 0.7, totalWeight: 0.45 }
-    },
-    edges: initialData?.edges || {
-      finalScore: 10,
-      frontWeight: 0.6,
-      backWeight: 0.4,
-      front: { left: 10, top: 10, right: 10, bottom: 10 },
-      back: { left: 10, top: 10, right: 10, bottom: 10 }
-    },
-    corners: initialData?.corners || {
-      finalScore: 10,
-      frontWeight: 0.6,
-      backWeight: 0.4,
-      front: { topLeft: 10, topRight: 10, bottomLeft: 10, bottomRight: 10 },
-      back: { topLeft: 10, topRight: 10, bottomLeft: 10, bottomRight: 10 }
-    },
-    centering: initialData?.centering || {
-      frontScore: 10,
-      backScore: 10,
-      finalScore: 10,
-      front: { left: 10, top: 10 },
-      back: { left: 10, top: 10 }
-    }
+      front: { color: null, scratches: null, colorWeight: null, scratchesWeight: null, totalWeight: null },
+      back: { color: null, scratches: null, colorWeight: null, scratchesWeight: null, totalWeight: null }
+    }),
+    edges: mergeWithDefaults(initialData?.edges, {
+      finalScore: null,
+      frontWeight: null,
+      backWeight: null,
+      front: { left: null, top: null, right: null, bottom: null },
+      back: { left: null, top: null, right: null, bottom: null }
+    }),
+    corners: mergeWithDefaults(initialData?.corners, {
+      finalScore: null,
+      frontWeight: null,
+      backWeight: null,
+      front: { topLeft: null, topRight: null, bottomLeft: null, bottomRight: null },
+      back: { topLeft: null, topRight: null, bottomLeft: null, bottomRight: null }
+    }),
+    centering: mergeWithDefaults(initialData?.centering, {
+      frontScore: null,
+      backScore: null,
+      finalScore: null,
+      front: { left: null, top: null },
+      back: { left: null, top: null }
+    })
   })
 
   const [loading, setLoading] = useState(false)
@@ -95,7 +113,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
         <div className="card-body">
           <div className="row g-3">
             <div className="col-md-6">
-              <label className="form-label">Nombre</label>
+              <label className="form-label">Nombre *</label>
               <input
                 type="text"
                 value={formData.name}
@@ -105,7 +123,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
               />
             </div>
             <div className="col-md-6">
-              <label className="form-label">Set</label>
+              <label className="form-label">Set *</label>
               <input
                 type="text"
                 value={formData.set}
@@ -115,7 +133,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
               />
             </div>
             <div className="col-md-6">
-              <label className="form-label">Número</label>
+              <label className="form-label">Número *</label>
               <input
                 type="text"
                 value={formData.number}
@@ -125,7 +143,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
               />
             </div>
             <div className="col-md-6">
-              <label className="form-label">Año</label>
+              <label className="form-label">Año *</label>
               <input
                 type="text"
                 value={formData.year}
@@ -135,7 +153,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
               />
             </div>
             <div className="col-md-6">
-              <label className="form-label">Rareza</label>
+              <label className="form-label">Rareza *</label>
               <input
                 type="text"
                 value={formData.rarity}
@@ -145,7 +163,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
               />
             </div>
             <div className="col-md-6">
-              <label className="form-label">Número de Certificación</label>
+              <label className="form-label">Número de Certificación *</label>
               <input
                 type="number"
                 value={formData.certificationNumber}
@@ -155,7 +173,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
               />
             </div>
             <div className="col-md-6">
-              <label className="form-label">Grado Final</label>
+              <label className="form-label">Grado Final *</label>
               <input
                 type="number"
                 step="0.5"
@@ -168,7 +186,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
               />
             </div>
             <div className="col-md-6">
-              <label className="form-label">Versión</label>
+              <label className="form-label">Versión *</label>
               <input
                 type="number"
                 value={formData.version}
@@ -246,8 +264,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 step="0.5"
                 min="0"
                 max="10"
-                value={formData.surface.finalScore}
-                onChange={(e) => updateFormData('surface.finalScore', parseFloat(e.target.value))}
+                value={formData.surface.finalScore || ''}
+                onChange={(e) => updateFormData('surface.finalScore', e.target.value ? parseFloat(e.target.value) : null)}
                 className="form-control"
               />
             </div>
@@ -258,8 +276,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 step="0.5"
                 min="0"
                 max="10"
-                value={formData.surface.bent}
-                onChange={(e) => updateFormData('surface.bent', parseFloat(e.target.value))}
+                value={formData.surface.bent || ''}
+                onChange={(e) => updateFormData('surface.bent', e.target.value ? parseFloat(e.target.value) : null)}
                 className="form-control"
               />
             </div>
@@ -288,8 +306,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.5"
                     min="0"
                     max="10"
-                    value={formData.surface.front.color}
-                    onChange={(e) => updateFormData('surface.front.color', parseFloat(e.target.value))}
+                    value={formData.surface.front.color || ''}
+                    onChange={(e) => updateFormData('surface.front.color', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                   />
                 </div>
@@ -300,8 +318,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.5"
                     min="0"
                     max="10"
-                    value={formData.surface.front.scratches}
-                    onChange={(e) => updateFormData('surface.front.scratches', parseFloat(e.target.value))}
+                    value={formData.surface.front.scratches || ''}
+                    onChange={(e) => updateFormData('surface.front.scratches', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                   />
                 </div>
@@ -317,8 +335,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.5"
                     min="0"
                     max="10"
-                    value={formData.surface.back.color}
-                    onChange={(e) => updateFormData('surface.back.color', parseFloat(e.target.value))}
+                    value={formData.surface.back.color || ''}
+                    onChange={(e) => updateFormData('surface.back.color', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                   />
                 </div>
@@ -329,8 +347,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.5"
                     min="0"
                     max="10"
-                    value={formData.surface.back.scratches}
-                    onChange={(e) => updateFormData('surface.back.scratches', parseFloat(e.target.value))}
+                    value={formData.surface.back.scratches || ''}
+                    onChange={(e) => updateFormData('surface.back.scratches', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                   />
                 </div>
@@ -354,8 +372,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 step="0.5"
                 min="0"
                 max="10"
-                value={formData.edges.finalScore}
-                onChange={(e) => updateFormData('edges.finalScore', parseFloat(e.target.value))}
+                value={formData.edges.finalScore || ''}
+                onChange={(e) => updateFormData('edges.finalScore', e.target.value ? parseFloat(e.target.value) : null)}
                 className="form-control"
               />
             </div>
@@ -366,8 +384,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 step="0.1"
                 min="0"
                 max="1"
-                value={formData.edges.frontWeight}
-                onChange={(e) => updateFormData('edges.frontWeight', parseFloat(e.target.value))}
+                value={formData.edges.frontWeight || ''}
+                onChange={(e) => updateFormData('edges.frontWeight', e.target.value ? parseFloat(e.target.value) : null)}
                 className="form-control"
               />
             </div>
@@ -378,8 +396,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 step="0.1"
                 min="0"
                 max="1"
-                value={formData.edges.backWeight}
-                onChange={(e) => updateFormData('edges.backWeight', parseFloat(e.target.value))}
+                value={formData.edges.backWeight || ''}
+                onChange={(e) => updateFormData('edges.backWeight', e.target.value ? parseFloat(e.target.value) : null)}
                 className="form-control"
               />
             </div>
@@ -396,8 +414,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.5"
                     min="0"
                     max="10"
-                    value={formData.edges.front.left}
-                    onChange={(e) => updateFormData('edges.front.left', parseFloat(e.target.value))}
+                    value={formData.edges.front.left || ''}
+                    onChange={(e) => updateFormData('edges.front.left', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                   />
                 </div>
@@ -408,8 +426,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.5"
                     min="0"
                     max="10"
-                    value={formData.edges.front.top}
-                    onChange={(e) => updateFormData('edges.front.top', parseFloat(e.target.value))}
+                    value={formData.edges.front.top || ''}
+                    onChange={(e) => updateFormData('edges.front.top', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                   />
                 </div>
@@ -420,8 +438,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.5"
                     min="0"
                     max="10"
-                    value={formData.edges.front.right}
-                    onChange={(e) => updateFormData('edges.front.right', parseFloat(e.target.value))}
+                    value={formData.edges.front.right || ''}
+                    onChange={(e) => updateFormData('edges.front.right', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                   />
                 </div>
@@ -432,8 +450,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.5"
                     min="0"
                     max="10"
-                    value={formData.edges.front.bottom}
-                    onChange={(e) => updateFormData('edges.front.bottom', parseFloat(e.target.value))}
+                    value={formData.edges.front.bottom || ''}
+                    onChange={(e) => updateFormData('edges.front.bottom', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                   />
                 </div>
@@ -449,8 +467,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.5"
                     min="0"
                     max="10"
-                    value={formData.edges.back.left}
-                    onChange={(e) => updateFormData('edges.back.left', parseFloat(e.target.value))}
+                    value={formData.edges.back.left || ''}
+                    onChange={(e) => updateFormData('edges.back.left', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                   />
                 </div>
@@ -461,8 +479,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.5"
                     min="0"
                     max="10"
-                    value={formData.edges.back.top}
-                    onChange={(e) => updateFormData('edges.back.top', parseFloat(e.target.value))}
+                    value={formData.edges.back.top || ''}
+                    onChange={(e) => updateFormData('edges.back.top', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                   />
                 </div>
@@ -473,8 +491,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.5"
                     min="0"
                     max="10"
-                    value={formData.edges.back.right}
-                    onChange={(e) => updateFormData('edges.back.right', parseFloat(e.target.value))}
+                    value={formData.edges.back.right || ''}
+                    onChange={(e) => updateFormData('edges.back.right', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                   />
                 </div>
@@ -485,8 +503,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.5"
                     min="0"
                     max="10"
-                    value={formData.edges.back.bottom}
-                    onChange={(e) => updateFormData('edges.back.bottom', parseFloat(e.target.value))}
+                    value={formData.edges.back.bottom || ''}
+                    onChange={(e) => updateFormData('edges.back.bottom', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                   />
                 </div>
@@ -510,8 +528,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 step="0.5"
                 min="0"
                 max="10"
-                value={formData.corners.finalScore}
-                onChange={(e) => updateFormData('corners.finalScore', parseFloat(e.target.value))}
+                value={formData.corners.finalScore || ''}
+                onChange={(e) => updateFormData('corners.finalScore', e.target.value ? parseFloat(e.target.value) : null)}
                 className="form-control"
               />
             </div>
@@ -522,8 +540,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 step="0.1"
                 min="0"
                 max="1"
-                value={formData.corners.frontWeight}
-                onChange={(e) => updateFormData('corners.frontWeight', parseFloat(e.target.value))}
+                value={formData.corners.frontWeight || ''}
+                onChange={(e) => updateFormData('corners.frontWeight', e.target.value ? parseFloat(e.target.value) : null)}
                 className="form-control"
               />
             </div>
@@ -534,8 +552,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 step="0.1"
                 min="0"
                 max="1"
-                value={formData.corners.backWeight}
-                onChange={(e) => updateFormData('corners.backWeight', parseFloat(e.target.value))}
+                value={formData.corners.backWeight || ''}
+                onChange={(e) => updateFormData('corners.backWeight', e.target.value ? parseFloat(e.target.value) : null)}
                 className="form-control"
               />
             </div>
@@ -552,8 +570,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.5"
                     min="0"
                     max="10"
-                    value={formData.corners.front.topLeft}
-                    onChange={(e) => updateFormData('corners.front.topLeft', parseFloat(e.target.value))}
+                    value={formData.corners.front.topLeft || ''}
+                    onChange={(e) => updateFormData('corners.front.topLeft', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                   />
                 </div>
@@ -564,8 +582,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.5"
                     min="0"
                     max="10"
-                    value={formData.corners.front.topRight}
-                    onChange={(e) => updateFormData('corners.front.topRight', parseFloat(e.target.value))}
+                    value={formData.corners.front.topRight || ''}
+                    onChange={(e) => updateFormData('corners.front.topRight', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                   />
                 </div>
@@ -576,8 +594,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.5"
                     min="0"
                     max="10"
-                    value={formData.corners.front.bottomLeft}
-                    onChange={(e) => updateFormData('corners.front.bottomLeft', parseFloat(e.target.value))}
+                    value={formData.corners.front.bottomLeft || ''}
+                    onChange={(e) => updateFormData('corners.front.bottomLeft', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                   />
                 </div>
@@ -588,8 +606,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.5"
                     min="0"
                     max="10"
-                    value={formData.corners.front.bottomRight}
-                    onChange={(e) => updateFormData('corners.front.bottomRight', parseFloat(e.target.value))}
+                    value={formData.corners.front.bottomRight || ''}
+                    onChange={(e) => updateFormData('corners.front.bottomRight', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                   />
                 </div>
@@ -605,8 +623,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.5"
                     min="0"
                     max="10"
-                    value={formData.corners.back.topLeft}
-                    onChange={(e) => updateFormData('corners.back.topLeft', parseFloat(e.target.value))}
+                    value={formData.corners.back.topLeft || ''}
+                    onChange={(e) => updateFormData('corners.back.topLeft', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                   />
                 </div>
@@ -617,8 +635,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.5"
                     min="0"
                     max="10"
-                    value={formData.corners.back.topRight}
-                    onChange={(e) => updateFormData('corners.back.topRight', parseFloat(e.target.value))}
+                    value={formData.corners.back.topRight || ''}
+                    onChange={(e) => updateFormData('corners.back.topRight', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                   />
                 </div>
@@ -629,8 +647,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.5"
                     min="0"
                     max="10"
-                    value={formData.corners.back.bottomLeft}
-                    onChange={(e) => updateFormData('corners.back.bottomLeft', parseFloat(e.target.value))}
+                    value={formData.corners.back.bottomLeft || ''}
+                    onChange={(e) => updateFormData('corners.back.bottomLeft', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                   />
                 </div>
@@ -641,8 +659,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.5"
                     min="0"
                     max="10"
-                    value={formData.corners.back.bottomRight}
-                    onChange={(e) => updateFormData('corners.back.bottomRight', parseFloat(e.target.value))}
+                    value={formData.corners.back.bottomRight || ''}
+                    onChange={(e) => updateFormData('corners.back.bottomRight', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                   />
                 </div>
@@ -666,8 +684,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 step="0.5"
                 min="0"
                 max="10"
-                value={formData.centering.frontScore}
-                onChange={(e) => updateFormData('centering.frontScore', parseFloat(e.target.value))}
+                value={formData.centering.frontScore || ''}
+                onChange={(e) => updateFormData('centering.frontScore', e.target.value ? parseFloat(e.target.value) : null)}
                 className="form-control"
               />
             </div>
@@ -678,8 +696,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 step="0.5"
                 min="0"
                 max="10"
-                value={formData.centering.backScore}
-                onChange={(e) => updateFormData('centering.backScore', parseFloat(e.target.value))}
+                value={formData.centering.backScore || ''}
+                onChange={(e) => updateFormData('centering.backScore', e.target.value ? parseFloat(e.target.value) : null)}
                 className="form-control"
               />
             </div>
@@ -690,8 +708,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 step="0.5"
                 min="0"
                 max="10"
-                value={formData.centering.finalScore}
-                onChange={(e) => updateFormData('centering.finalScore', parseFloat(e.target.value))}
+                value={formData.centering.finalScore || ''}
+                onChange={(e) => updateFormData('centering.finalScore', e.target.value ? parseFloat(e.target.value) : null)}
                 className="form-control"
               />
             </div>
@@ -708,8 +726,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.5"
                     min="0"
                     max="10"
-                    value={formData.centering.front.left}
-                    onChange={(e) => updateFormData('centering.front.left', parseFloat(e.target.value))}
+                    value={formData.centering.front.left || ''}
+                    onChange={(e) => updateFormData('centering.front.left', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                   />
                 </div>
@@ -720,8 +738,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.5"
                     min="0"
                     max="10"
-                    value={formData.centering.front.top}
-                    onChange={(e) => updateFormData('centering.front.top', parseFloat(e.target.value))}
+                    value={formData.centering.front.top || ''}
+                    onChange={(e) => updateFormData('centering.front.top', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                   />
                 </div>
@@ -737,8 +755,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.5"
                     min="0"
                     max="10"
-                    value={formData.centering.back.left}
-                    onChange={(e) => updateFormData('centering.back.left', parseFloat(e.target.value))}
+                    value={formData.centering.back.left || ''}
+                    onChange={(e) => updateFormData('centering.back.left', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                   />
                 </div>
@@ -749,8 +767,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.5"
                     min="0"
                     max="10"
-                    value={formData.centering.back.top}
-                    onChange={(e) => updateFormData('centering.back.top', parseFloat(e.target.value))}
+                    value={formData.centering.back.top || ''}
+                    onChange={(e) => updateFormData('centering.back.top', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                   />
                 </div>

@@ -139,16 +139,16 @@ export default function CardDetailPage({ params }: PageProps) {
             <div className="card-body">
               <ul className="list-group list-group-flush">
                 <li className="list-group-item d-flex justify-content-between align-items-center">
-                  Superficie <span className="badge bg-primary rounded-pill">{card.surface.finalScore}</span>
+                  Superficie <span className="badge bg-primary rounded-pill">{card.surface?.finalScore ?? 'N/A'}</span>
                 </li>
                 <li className="list-group-item d-flex justify-content-between align-items-center">
-                  Bordes <span className="badge bg-primary rounded-pill">{card.edges.finalScore}</span>
+                  Bordes <span className="badge bg-primary rounded-pill">{card.edges?.finalScore ?? 'N/A'}</span>
                 </li>
                 <li className="list-group-item d-flex justify-content-between align-items-center">
-                  Esquinas <span className="badge bg-primary rounded-pill">{card.corners.finalScore}</span>
+                  Esquinas <span className="badge bg-primary rounded-pill">{card.corners?.finalScore ?? 'N/A'}</span>
                 </li>
                 <li className="list-group-item d-flex justify-content-between align-items-center">
-                  Centrado <span className="badge bg-primary rounded-pill">{card.centering.finalScore}</span>
+                  Centrado <span className="badge bg-primary rounded-pill">{card.centering?.finalScore ?? 'N/A'}</span>
                 </li>
               </ul>
             </div>
@@ -176,115 +176,123 @@ export default function CardDetailPage({ params }: PageProps) {
         <h4 className="mb-3">Detalles de Graduación</h4>
         <div className="accordion" id="grading-details-accordion">
           {/* Surface */}
-          <div className="accordion-item">
-            <h2 className="accordion-header" id="surface-heading">
-              <button className="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#surface-collapse" aria-expanded="true" aria-controls="surface-collapse">
-                Superficie ({card.surface.finalScore})
-              </button>
-            </h2>
-            <div id="surface-collapse" className="accordion-collapse collapse show" aria-labelledby="surface-heading">
-              <div className="accordion-body">
-                <p><strong>Puntuación por doblez:</strong> {card.surface.bent ?? 'N/A'}</p>
-                <p><strong>Peso de la puntuación por doblez:</strong> {card.surface.bentWeight ?? 'N/A'}</p>
-                <hr />
-                <div className="row">
-                  <div className="col-md-6">
-                    <h6>Frente</h6>
-                    <p className="mb-1"><strong>Color:</strong> {card.surface.front.color} <span className="text-muted small">(Peso: {card.surface.front.colorWeight})</span></p>
-                    <p className="mb-1"><strong>Rayones:</strong> {card.surface.front.scratches} <span className="text-muted small">(Peso: {card.surface.front.scratchesWeight})</span></p>
-                  </div>
-                  <div className="col-md-6">
-                    <h6>Reverso</h6>
-                    <p className="mb-1"><strong>Color:</strong> {card.surface.back.color} <span className="text-muted small">(Peso: {card.surface.back.colorWeight})</span></p>
-                    <p className="mb-1"><strong>Rayones:</strong> {card.surface.back.scratches} <span className="text-muted small">(Peso: {card.surface.back.scratchesWeight})</span></p>
+          {card.surface && (
+            <div className="accordion-item">
+              <h2 className="accordion-header" id="surface-heading">
+                <button className="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#surface-collapse" aria-expanded="true" aria-controls="surface-collapse">
+                  Superficie ({card.surface.finalScore})
+                </button>
+              </h2>
+              <div id="surface-collapse" className="accordion-collapse collapse show" aria-labelledby="surface-heading">
+                <div className="accordion-body">
+                  <p><strong>Puntuación por doblez:</strong> {card.surface.bent ?? 'N/A'}</p>
+                  <p><strong>Peso de la puntuación por doblez:</strong> {card.surface.bentWeight ?? 'N/A'}</p>
+                  <hr />
+                  <div className="row">
+                    <div className="col-md-6">
+                      <h6>Frente</h6>
+                      <p className="mb-1"><strong>Color:</strong> {card.surface.front?.color ?? 'N/A'} <span className="text-muted small">(Peso: {card.surface.front?.colorWeight ?? 'N/A'})</span></p>
+                      <p className="mb-1"><strong>Rayones:</strong> {card.surface.front?.scratches ?? 'N/A'} <span className="text-muted small">(Peso: {card.surface.front?.scratchesWeight ?? 'N/A'})</span></p>
+                    </div>
+                    <div className="col-md-6">
+                      <h6>Reverso</h6>
+                      <p className="mb-1"><strong>Color:</strong> {card.surface.back?.color ?? 'N/A'} <span className="text-muted small">(Peso: {card.surface.back?.colorWeight ?? 'N/A'})</span></p>
+                      <p className="mb-1"><strong>Rayones:</strong> {card.surface.back?.scratches ?? 'N/A'} <span className="text-muted small">(Peso: {card.surface.back?.scratchesWeight ?? 'N/A'})</span></p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Edges */}
-          <div className="accordion-item">
-            <h2 className="accordion-header" id="edges-heading">
-              <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#edges-collapse" aria-expanded="false" aria-controls="edges-collapse">
-                Bordes ({card.edges.finalScore})
-              </button>
-            </h2>
-            <div id="edges-collapse" className="accordion-collapse collapse" aria-labelledby="edges-heading">
-              <div className="accordion-body">
-                <div className="row">
-                  <div className="col-md-6">
-                    <h6>Frente</h6>
-                    <p className="mb-1"><strong>Superior:</strong> {card.edges.front.top}</p>
-                    <p className="mb-1"><strong>Inferior:</strong> {card.edges.front.bottom}</p>
-                    <p className="mb-1"><strong>Izquierda:</strong> {card.edges.front.left}</p>
-                    <p className="mb-1"><strong>Derecha:</strong> {card.edges.front.right}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <h6>Reverso</h6>
-                    <p className="mb-1"><strong>Superior:</strong> {card.edges.back.top}</p>
-                    <p className="mb-1"><strong>Inferior:</strong> {card.edges.back.bottom}</p>
-                    <p className="mb-1"><strong>Izquierda:</strong> {card.edges.back.left}</p>
-                    <p className="mb-1"><strong>Derecha:</strong> {card.edges.back.right}</p>
+          {card.edges && (
+            <div className="accordion-item">
+              <h2 className="accordion-header" id="edges-heading">
+                <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#edges-collapse" aria-expanded="false" aria-controls="edges-collapse">
+                  Bordes ({card.edges.finalScore})
+                </button>
+              </h2>
+              <div id="edges-collapse" className="accordion-collapse collapse" aria-labelledby="edges-heading">
+                <div className="accordion-body">
+                  <div className="row">
+                    <div className="col-md-6">
+                      <h6>Frente</h6>
+                      <p className="mb-1"><strong>Superior:</strong> {card.edges.front?.top ?? 'N/A'}</p>
+                      <p className="mb-1"><strong>Inferior:</strong> {card.edges.front?.bottom ?? 'N/A'}</p>
+                      <p className="mb-1"><strong>Izquierda:</strong> {card.edges.front?.left ?? 'N/A'}</p>
+                      <p className="mb-1"><strong>Derecha:</strong> {card.edges.front?.right ?? 'N/A'}</p>
+                    </div>
+                    <div className="col-md-6">
+                      <h6>Reverso</h6>
+                      <p className="mb-1"><strong>Superior:</strong> {card.edges.back?.top ?? 'N/A'}</p>
+                      <p className="mb-1"><strong>Inferior:</strong> {card.edges.back?.bottom ?? 'N/A'}</p>
+                      <p className="mb-1"><strong>Izquierda:</strong> {card.edges.back?.left ?? 'N/A'}</p>
+                      <p className="mb-1"><strong>Derecha:</strong> {card.edges.back?.right ?? 'N/A'}</p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Corners */}
-          <div className="accordion-item">
-            <h2 className="accordion-header" id="corners-heading">
-              <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#corners-collapse" aria-expanded="false" aria-controls="corners-collapse">
-                Esquinas ({card.corners.finalScore})
-              </button>
-            </h2>
-            <div id="corners-collapse" className="accordion-collapse collapse" aria-labelledby="corners-heading">
-              <div className="accordion-body">
-                <div className="row">
-                  <div className="col-md-6">
-                    <h6>Frente</h6>
-                    <p className="mb-1"><strong>Superior Izquierda:</strong> {card.corners.front.topLeft}</p>
-                    <p className="mb-1"><strong>Superior Derecha:</strong> {card.corners.front.topRight}</p>
-                    <p className="mb-1"><strong>Inferior Izquierda:</strong> {card.corners.front.bottomLeft}</p>
-                    <p className="mb-1"><strong>Inferior Derecha:</strong> {card.corners.front.bottomRight}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <h6>Reverso</h6>
-                    <p className="mb-1"><strong>Superior Izquierda:</strong> {card.corners.back.topLeft}</p>
-                    <p className="mb-1"><strong>Superior Derecha:</strong> {card.corners.back.topRight}</p>
-                    <p className="mb-1"><strong>Inferior Izquierda:</strong> {card.corners.back.bottomLeft}</p>
-                    <p className="mb-1"><strong>Inferior Derecha:</strong> {card.corners.back.bottomRight}</p>
+          {card.corners && (
+            <div className="accordion-item">
+              <h2 className="accordion-header" id="corners-heading">
+                <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#corners-collapse" aria-expanded="false" aria-controls="corners-collapse">
+                  Esquinas ({card.corners.finalScore})
+                </button>
+              </h2>
+              <div id="corners-collapse" className="accordion-collapse collapse" aria-labelledby="corners-heading">
+                <div className="accordion-body">
+                  <div className="row">
+                    <div className="col-md-6">
+                      <h6>Frente</h6>
+                      <p className="mb-1"><strong>Superior Izquierda:</strong> {card.corners.front?.topLeft ?? 'N/A'}</p>
+                      <p className="mb-1"><strong>Superior Derecha:</strong> {card.corners.front?.topRight ?? 'N/A'}</p>
+                      <p className="mb-1"><strong>Inferior Izquierda:</strong> {card.corners.front?.bottomLeft ?? 'N/A'}</p>
+                      <p className="mb-1"><strong>Inferior Derecha:</strong> {card.corners.front?.bottomRight ?? 'N/A'}</p>
+                    </div>
+                    <div className="col-md-6">
+                      <h6>Reverso</h6>
+                      <p className="mb-1"><strong>Superior Izquierda:</strong> {card.corners.back?.topLeft ?? 'N/A'}</p>
+                      <p className="mb-1"><strong>Superior Derecha:</strong> {card.corners.back?.topRight ?? 'N/A'}</p>
+                      <p className="mb-1"><strong>Inferior Izquierda:</strong> {card.corners.back?.bottomLeft ?? 'N/A'}</p>
+                      <p className="mb-1"><strong>Inferior Derecha:</strong> {card.corners.back?.bottomRight ?? 'N/A'}</p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Centering */}
-          <div className="accordion-item">
-            <h2 className="accordion-header" id="centering-heading">
-              <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#centering-collapse" aria-expanded="false" aria-controls="centering-collapse">
-                Centrado ({card.centering.finalScore})
-              </button>
-            </h2>
-            <div id="centering-collapse" className="accordion-collapse collapse" aria-labelledby="centering-heading">
-              <div className="accordion-body">
-                <div className="row">
-                  <div className="col-md-6">
-                    <h6>Frente ({card.centering.frontScore})</h6>
-                    <p className="mb-1"><strong>Izquierda:</strong> {card.centering.front.left}</p>
-                    <p className="mb-1"><strong>Superior:</strong> {card.centering.front.top}</p>
-                  </div>
-                  <div className="col-md-6">
-                    <h6>Reverso ({card.centering.backScore})</h6>
-                    <p className="mb-1"><strong>Izquierda:</strong> {card.centering.back.left}</p>
-                    <p className="mb-1"><strong>Superior:</strong> {card.centering.back.top}</p>
+          {card.centering && (
+            <div className="accordion-item">
+              <h2 className="accordion-header" id="centering-heading">
+                <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#centering-collapse" aria-expanded="false" aria-controls="centering-collapse">
+                  Centrado ({card.centering.finalScore})
+                </button>
+              </h2>
+              <div id="centering-collapse" className="accordion-collapse collapse" aria-labelledby="centering-heading">
+                <div className="accordion-body">
+                  <div className="row">
+                    <div className="col-md-6">
+                      <h6>Frente ({card.centering.frontScore ?? 'N/A'})</h6>
+                      <p className="mb-1"><strong>Izquierda:</strong> {card.centering.front?.left ?? 'N/A'}</p>
+                      <p className="mb-1"><strong>Superior:</strong> {card.centering.front?.top ?? 'N/A'}</p>
+                    </div>
+                    <div className="col-md-6">
+                      <h6>Reverso ({card.centering.backScore ?? 'N/A'})</h6>
+                      <p className="mb-1"><strong>Izquierda:</strong> {card.centering.back?.left ?? 'N/A'}</p>
+                      <p className="mb-1"><strong>Superior:</strong> {card.centering.back?.top ?? 'N/A'}</p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
