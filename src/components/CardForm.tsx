@@ -36,7 +36,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
     year: initialData?.year || '',
     rarity: initialData?.rarity || '',
     finalGrade: initialData?.finalGrade || 10,
-    certificationNumber: initialData?.certificationNumber || 0,
+    certificationNumber: initialData?.certificationNumber || 1,
     version: initialData?.version || 1,
     has3DScan: initialData?.has3DScan || false,
     tcg: initialData?.tcg || '',
@@ -79,7 +79,26 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
     e.preventDefault()
     setLoading(true)
     try {
-      await onSubmit(formData)
+      // Convert null weight values to valid defaults for Zod validation
+      const sanitizedData = {
+        ...formData,
+        surface: {
+          ...formData.surface,
+          front: {
+            ...formData.surface.front,
+            colorWeight: formData.surface.front.colorWeight ?? 0.5,
+            scratchesWeight: formData.surface.front.scratchesWeight ?? 0.5,
+            totalWeight: formData.surface.front.totalWeight ?? 1.0,
+          },
+          back: {
+            ...formData.surface.back,
+            colorWeight: formData.surface.back.colorWeight ?? 0.5,
+            scratchesWeight: formData.surface.back.scratchesWeight ?? 0.5,
+            totalWeight: formData.surface.back.totalWeight ?? 1.0,
+          }
+        }
+      }
+      await onSubmit(sanitizedData)
     } catch (error) {
       console.error('Error submitting form:', error)
     } finally {
@@ -166,10 +185,12 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
               <label className="form-label">Número de Certificación *</label>
               <input
                 type="number"
+                min="1"
                 value={formData.certificationNumber}
-                onChange={(e) => updateFormData('certificationNumber', parseInt(e.target.value))}
+                onChange={(e) => updateFormData('certificationNumber', parseInt(e.target.value) || 1)}
                 className="form-control"
                 required
+                title="Debe ser un número positivo mayor a 0"
               />
             </div>
             <div className="col-md-6">
@@ -189,10 +210,12 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
               <label className="form-label">Versión *</label>
               <input
                 type="number"
+                min="1"
                 value={formData.version}
-                onChange={(e) => updateFormData('version', parseInt(e.target.value))}
+                onChange={(e) => updateFormData('version', parseInt(e.target.value) || 1)}
                 className="form-control"
                 required
+                title="Debe ser un número entero mayor a 0"
               />
             </div>
             <div className="col-md-6">
@@ -258,7 +281,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
         <div className="card-body">
           <div className="row g-3">
             <div className="col-md-4">
-              <label className="form-label">Score Final</label>
+              <label className="form-label">Score Final *</label>
               <input
                 type="number"
                 step="0.5"
@@ -267,10 +290,12 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 value={formData.surface.finalScore || ''}
                 onChange={(e) => updateFormData('surface.finalScore', e.target.value ? parseFloat(e.target.value) : null)}
                 className="form-control"
+                required
+                title="Score final de la superficie (0-10)"
               />
             </div>
             <div className="col-md-4">
-              <label className="form-label">Bent</label>
+              <label className="form-label">Bent *</label>
               <input
                 type="number"
                 step="0.5"
@@ -279,6 +304,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 value={formData.surface.bent || ''}
                 onChange={(e) => updateFormData('surface.bent', e.target.value ? parseFloat(e.target.value) : null)}
                 className="form-control"
+                required
+                title="Nivel de curvatura (0-10)"
               />
             </div>
             <div className="col-md-4">
@@ -300,7 +327,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
               <h5 className="card-subtitle mb-3">Front</h5>
               <div className="row g-2">
                 <div className="col-6">
-                  <label className="form-label">Color</label>
+                  <label className="form-label">Color *</label>
                   <input
                     type="number"
                     step="0.5"
@@ -309,10 +336,12 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     value={formData.surface.front.color || ''}
                     onChange={(e) => updateFormData('surface.front.color', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
+                    title="Rango: 0-10"
+                    required
                   />
                 </div>
                 <div className="col-6">
-                  <label className="form-label">Scratches</label>
+                  <label className="form-label">Scratches *</label>
                   <input
                     type="number"
                     step="0.5"
@@ -321,6 +350,47 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     value={formData.surface.front.scratches || ''}
                     onChange={(e) => updateFormData('surface.front.scratches', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
+                    title="Rango: 0-10"
+                    required
+                  />
+                </div>
+                <div className="col-6">
+                  <label className="form-label">Color Weight</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="1"
+                    value={formData.surface.front.colorWeight}
+                    onChange={(e) => updateFormData('surface.front.colorWeight', e.target.value ? parseFloat(e.target.value) : null)}
+                    className="form-control"
+                    title="Peso del color (0-1)"
+                  />
+                </div>
+                <div className="col-6">
+                  <label className="form-label">Scratches Weight</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="1"
+                    value={formData.surface.front.scratchesWeight}
+                    onChange={(e) => updateFormData('surface.front.scratchesWeight', e.target.value ? parseFloat(e.target.value) : null)}
+                    className="form-control"
+                    title="Peso de los rayones (0-1)"
+                  />
+                </div>
+                <div className="col-12">
+                  <label className="form-label">Total Weight</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="1"
+                    value={formData.surface.front.totalWeight}
+                    onChange={(e) => updateFormData('surface.front.totalWeight', e.target.value ? parseFloat(e.target.value) : null)}
+                    className="form-control"
+                    title="Peso total del frente (0-1)"
                   />
                 </div>
               </div>
@@ -329,7 +399,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
               <h5 className="card-subtitle mb-3">Back</h5>
               <div className="row g-2">
                 <div className="col-6">
-                  <label className="form-label">Color</label>
+                  <label className="form-label">Color *</label>
                   <input
                     type="number"
                     step="0.5"
@@ -338,10 +408,12 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     value={formData.surface.back.color || ''}
                     onChange={(e) => updateFormData('surface.back.color', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
+                    title="Rango: 0-10"
+                    required
                   />
                 </div>
                 <div className="col-6">
-                  <label className="form-label">Scratches</label>
+                  <label className="form-label">Scratches *</label>
                   <input
                     type="number"
                     step="0.5"
@@ -350,6 +422,47 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     value={formData.surface.back.scratches || ''}
                     onChange={(e) => updateFormData('surface.back.scratches', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
+                    title="Rango: 0-10"
+                    required
+                  />
+                </div>
+                <div className="col-6">
+                  <label className="form-label">Color Weight</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="1"
+                    value={formData.surface.back.colorWeight}
+                    onChange={(e) => updateFormData('surface.back.colorWeight', e.target.value ? parseFloat(e.target.value) : null)}
+                    className="form-control"
+                    title="Peso del color (0-1)"
+                  />
+                </div>
+                <div className="col-6">
+                  <label className="form-label">Scratches Weight</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="1"
+                    value={formData.surface.back.scratchesWeight}
+                    onChange={(e) => updateFormData('surface.back.scratchesWeight', e.target.value ? parseFloat(e.target.value) : null)}
+                    className="form-control"
+                    title="Peso de los rayones (0-1)"
+                  />
+                </div>
+                <div className="col-12">
+                  <label className="form-label">Total Weight</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="1"
+                    value={formData.surface.back.totalWeight}
+                    onChange={(e) => updateFormData('surface.back.totalWeight', e.target.value ? parseFloat(e.target.value) : null)}
+                    className="form-control"
+                    title="Peso total del reverso (0-1)"
                   />
                 </div>
               </div>
@@ -366,7 +479,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
         <div className="card-body">
           <div className="row g-3">
             <div className="col-md-4">
-              <label className="form-label">Score Final</label>
+              <label className="form-label">Score Final *</label>
               <input
                 type="number"
                 step="0.5"
@@ -678,7 +791,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
         <div className="card-body">
           <div className="row g-3">
             <div className="col-md-4">
-              <label className="form-label">Front Score</label>
+              <label className="form-label">Front Score *</label>
               <input
                 type="number"
                 step="0.5"
@@ -690,7 +803,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
               />
             </div>
             <div className="col-md-4">
-              <label className="form-label">Back Score</label>
+              <label className="form-label">Back Score *</label>
               <input
                 type="number"
                 step="0.5"
@@ -702,7 +815,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
               />
             </div>
             <div className="col-md-4">
-              <label className="form-label">Final Score</label>
+              <label className="form-label">Final Score *</label>
               <input
                 type="number"
                 step="0.5"
