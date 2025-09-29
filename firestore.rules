@@ -1,14 +1,124 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Permitir acceso completo a cartas para usuarios autenticados con Admin SDK
-    match /cards/{document=**} {
-      allow read, write: if request.auth != null;
+    // Funciones helper para autenticación
+    function isAuthenticated() {
+      return request.auth != null;
     }
     
-    // Para desarrollo: permitir acceso público (REMOVER EN PRODUCCIÓN)
-    match /cards/{document=**} {
-      allow read, write: if true;
+    function isOwner(uid) {
+      return request.auth.uid == uid;
+    }
+    
+    // Obtener datos del usuario
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    function hasRole(role) {
+      return getUserData().role == role;
+    }
+    
+    function isActive() {
+      return getUserData().isActive == true;
+    }
+    
+    // Reglas para colección de usuarios
+    match /users/{userId} {
+      // Solo el propio usuario puede leer su perfil
+      allow read: if isAuthenticated() && isOwner(userId);
+      
+      // Solo el propio usuario puede crear su perfil inicial (registro)
+      allow create: if isAuthenticated() && isOwner(userId)
+                    && request.resource.data.uid == request.auth.uid;
+      
+      // Solo el propio usuario puede actualizar su perfil (campos limitados)
+      allow update: if isAuthenticated() && isOwner(userId)
+                    && request.resource.data.uid == resource.data.uid; // No cambiar UID
+      
+      // Solo admins pueden eliminar usuarios (no implementado en frontend)
+      allow delete: if false;
+    }
+    
+    // Reglas para colección de tiendas
+    match /stores/{storeId} {
+      // Lectura: Solo admins y el owner de la tienda
+      allow read: if isAuthenticated() && isActive() &&
+                  (hasRole('admin') || 
+                   (hasRole('store_owner') && getUserData().storeId == storeId));
+      
+      // Escritura: Solo admins pueden crear tiendas
+      allow create: if isAuthenticated() && isActive() && hasRole('admin');
+      
+      // Actualización: Admins y el owner de la tienda
+      allow update: if isAuthenticated() && isActive() &&
+                    (hasRole('admin') || 
+                     (hasRole('store_owner') && getUserData().storeId == storeId));
+      
+      // Eliminación: Solo admins
+      allow delete: if isAuthenticated() && isActive() && hasRole('admin');
+    }
+    
+    // Reglas para colección de órdenes
+    match /orders/{orderId} {
+      // Lectura basada en rol
+      allow read: if isAuthenticated() && isActive() &&
+                  (hasRole('admin') || // Admins ven todas
+                   (hasRole('store_owner') && resource.data.storeId == getUserData().storeId) || // Store owners solo las suyas
+                   (hasRole('customer') && resource.data.customerId == getUserData().customerId)); // Customers solo las suyas
+      
+      // Creación basada en rol
+      allow create: if isAuthenticated() && isActive() &&
+                    (hasRole('admin') || // Admins pueden crear cualquier orden
+                     (hasRole('store_owner') && request.resource.data.storeId == getUserData().storeId) || // Store owners solo para su tienda
+                     hasRole('customer')); // Customers pueden crear órdenes directas
+      
+      // Actualización basada en rol
+      allow update: if isAuthenticated() && isActive() &&
+                    (hasRole('admin') || // Admins pueden actualizar cualquier orden
+                     (hasRole('store_owner') && resource.data.storeId == getUserData().storeId)); // Store owners solo las suyas
+      
+      // Eliminación: Solo admins
+      allow delete: if isAuthenticated() && isActive() && hasRole('admin');
+    }
+    
+    // Reglas para colección de clientes
+    match /customers/{customerId} {
+      // Lectura: Admins ven todos, customers solo el suyo
+      allow read: if isAuthenticated() && isActive() &&
+                  (hasRole('admin') || 
+                   (hasRole('customer') && getUserData().customerId == customerId));
+      
+      // Escritura: Solo admins pueden crear customers
+      allow create: if isAuthenticated() && isActive() && hasRole('admin');
+      
+      // Actualización: Admins y el propio customer
+      allow update: if isAuthenticated() && isActive() &&
+                    (hasRole('admin') || 
+                     (hasRole('customer') && getUserData().customerId == customerId));
+      
+      // Eliminación: Solo admins
+      allow delete: if isAuthenticated() && isActive() && hasRole('admin');
+    }
+    
+    // Reglas para colección de cartas (catálogo)
+    match /cards/{cardId} {
+      // Lectura: Todos los usuarios autenticados pueden ver el catálogo
+      allow read: if isAuthenticated() && isActive();
+      
+      // Escritura: Solo admins pueden modificar el catálogo
+      allow create, update, delete: if isAuthenticated() && isActive() && hasRole('admin');
+    }
+    
+    // Reglas para contadores
+    match /counters/{counterId} {
+      // Solo lectura para generar IDs únicos
+      allow read, write: if isAuthenticated() && isActive();
+    }
+    
+    // Denegar acceso a cualquier otra colección
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

@@ -40,4 +40,9 @@ export { db }
 
 export const COLLECTIONS = {
   CARDS: 'cards',
+  ORDERS: 'orders',
+  STORES: 'stores',
+  CUSTOMERS: 'customers',
+  COUNTERS: 'counters',
+  USERS: 'users',
 } as const

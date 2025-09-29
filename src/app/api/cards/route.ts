@@ -16,24 +16,42 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20')
     const offset = parseInt(searchParams.get('offset') || '0')
     const sort = searchParams.get('sort') as 'asc' | 'desc' | null
+    const search = searchParams.get('search')
 
     const result = await CardService.getAllCards(limit, offset, sort)
-    
+
+    // Apply search filter if provided
+    let filteredCards = result.cards
+    if (search && search.length > 0) {
+      const searchLower = search.toLowerCase()
+      filteredCards = result.cards.filter(card =>
+        card.name.toLowerCase().includes(searchLower) ||
+        card.certificationNumber.toString().includes(search) ||
+        card.set.toLowerCase().includes(searchLower) ||
+        card.tcg?.toLowerCase().includes(searchLower)
+      )
+    }
+
     return NextResponse.json({
-      data: result.cards,
+      success: true,
+      data: {
+        cards: filteredCards,
+        total: search ? filteredCards.length : result.total
+      },
       meta: {
         pagination: {
-          total: result.total,
+          total: search ? filteredCards.length : result.total,
           limit,
           offset,
-          hasNext: offset + limit < result.total,
-        }
+          hasNext: search ? false : offset + limit < result.total,
+        },
+        search: search || null
       }
     })
   } catch (error) {
     console.error('Error fetching cards:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { success: false, error: 'Internal server error' },
       { status: 500 }
     )
   }

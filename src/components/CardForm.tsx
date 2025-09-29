@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { CreateCardRequest } from '@/types/card'
 import ImageUpload from './ImageUpload'
 
@@ -43,6 +43,8 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
     gradeText: initialData?.gradeText || '',
     notes: initialData?.notes || '',
     gradeDate: initialData?.gradeDate || new Date().toISOString(),
+    customerId: initialData?.customerId || '',
+    orderId: initialData?.orderId || '',
     surface: mergeWithDefaults(initialData?.surface, {
       finalScore: null,
       bent: null,
@@ -74,6 +76,44 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
   })
 
   const [loading, setLoading] = useState(false)
+  const [customers, setCustomers] = useState<any[]>([])
+  const [orders, setOrders] = useState<any[]>([])
+  const [showAssignment, setShowAssignment] = useState(false)
+
+  // Cargar customers y orders al montar el componente
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        // Cargar customers
+        const customersResponse = await fetch('/api/customers?limit=100', {
+          headers: { 'x-api-key': process.env.NEXT_PUBLIC_API_KEY || '' }
+        })
+        if (customersResponse.ok) {
+          const customersData = await customersResponse.json()
+          setCustomers(customersData.data?.customers || [])
+        }
+
+        // Cargar órdenes pendientes (que no estén completadas)
+        const ordersResponse = await fetch('/api/orders?limit=50', {
+          headers: { 'x-api-key': process.env.NEXT_PUBLIC_API_KEY || '' }
+        })
+        if (ordersResponse.ok) {
+          const ordersData = await ordersResponse.json()
+          // Filtrar solo órdenes activas (no completadas ni entregadas)
+          const activeOrders = ordersData.data?.orders?.filter((order: any) =>
+            !['completed', 'shipped', 'delivered'].includes(order.status)
+          ) || []
+          setOrders(activeOrders)
+        }
+      } catch (error) {
+        console.error('Error loading customers and orders:', error)
+      }
+    }
+
+    if (showAssignment) {
+      loadData()
+    }
+  }, [showAssignment])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -889,6 +929,81 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Asignación a Cliente y Orden (Opcional) */}
+      <div className="card mb-4">
+        <div className="card-header d-flex justify-content-between align-items-center">
+          <h3 className="card-title mb-0">Asignación (Opcional)</h3>
+          <button
+            type="button"
+            onClick={() => setShowAssignment(!showAssignment)}
+            className={`btn btn-sm ${showAssignment ? 'btn-outline-secondary' : 'btn-outline-info'}`}
+          >
+            {showAssignment ? 'Ocultar' : 'Mostrar'} Asignación
+          </button>
+        </div>
+
+        {showAssignment && (
+          <div className="card-body">
+            <p className="text-muted mb-4">
+              Puedes asignar esta carta directamente a un cliente o a una orden específica al crearla.
+            </p>
+
+            <div className="row g-3">
+              <div className="col-md-6">
+                <label className="form-label">Cliente</label>
+                <select
+                  value={formData.customerId || ''}
+                  onChange={(e) => updateFormData('customerId', e.target.value || undefined)}
+                  className="form-select"
+                >
+                  <option value="">Seleccionar cliente (opcional)</option>
+                  {customers.map(customer => (
+                    <option key={customer.documentId} value={customer.documentId}>
+                      {customer.name} • {customer.email || 'Sin email'} • Tel: {customer.phone}
+                    </option>
+                  ))}
+                </select>
+                <div className="form-text">
+                  Si asignas a un cliente, esta carta aparecerá en su historial
+                </div>
+              </div>
+
+              <div className="col-md-6">
+                <label className="form-label">Orden</label>
+                <select
+                  value={formData.orderId || ''}
+                  onChange={(e) => updateFormData('orderId', e.target.value || undefined)}
+                  className="form-select"
+                >
+                  <option value="">Seleccionar orden (opcional)</option>
+                  {orders
+                    .filter(order => !formData.customerId || order.customerId === formData.customerId)
+                    .map(order => (
+                      <option key={order.documentId} value={order.documentId}>
+                        #{order.uuid} - {order.customerName} ({order.status})
+                      </option>
+                    ))}
+                </select>
+                <div className="form-text">
+                  {formData.customerId
+                    ? 'Solo se muestran órdenes del cliente seleccionado'
+                    : 'Selecciona un cliente primero para filtrar órdenes'
+                  }
+                </div>
+              </div>
+            </div>
+
+            {formData.customerId && formData.orderId && (
+              <div className="alert alert-info mt-3">
+                <small>
+                  <strong>✓ Asignación completa:</strong> Esta carta se asignará al cliente y se incluirá en la orden seleccionada.
+                </small>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Submit Button */}

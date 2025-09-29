@@ -32,18 +32,31 @@ export class CardService {
 
   static async getCardByCertificationNumber(certificationNumber: number): Promise<Card | null> {
     try {
+      console.log(`🔍 [CardService] Fetching card with certification number: ${certificationNumber}`)
+      console.log(`🔍 [CardService] Firebase project: ${process.env.FIREBASE_PROJECT_ID}`)
+      console.log(`🔍 [CardService] Environment: ${process.env.NODE_ENV}`)
+      
       const collection = db.collection(COLLECTIONS.CARDS)
       const snapshot = await collection
         .where('certificationNumber', '==', certificationNumber)
         .limit(1)
         .get()
 
+      console.log(`📊 [CardService] Query executed, empty: ${snapshot.empty}, docs count: ${snapshot.docs.length}`)
+
       if (snapshot.empty) {
+        console.log(`❌ [CardService] No card found with certification number: ${certificationNumber}`)
         return null
       }
 
       const doc = snapshot.docs[0]
-      return doc.data() as Card
+      const cardData = doc.data() as Card
+      console.log(`✅ [CardService] Card found: ${cardData.certificationNumber}, images:`, !!cardData.images)
+      if (cardData.images) {
+        console.log(`🖼️  [CardService] Image URLs:`, JSON.stringify(cardData.images, null, 2))
+      }
+      
+      return cardData
     } finally {
       cleanupFirebaseConnection()
     }
@@ -52,7 +65,7 @@ export class CardService {
   static async getAllCards(limit = 20, offset = 0, sort: 'asc' | 'desc' | null = 'desc'): Promise<{ cards: Card[], total: number }> {
     try {
       const collection = db.collection(COLLECTIONS.CARDS)
-      
+
       const countSnapshot = await collection.count().get()
       const total = countSnapshot.data().count
 
@@ -65,6 +78,36 @@ export class CardService {
 
       const cards = snapshot.docs.map(doc => doc.data() as Card)
 
+      return { cards, total }
+    } finally {
+      cleanupFirebaseConnection()
+    }
+  }
+
+  // Get cards by customer ID
+  static async getCardsByCustomerId(customerId: string, limit = 50, offset = 0): Promise<{ cards: Card[], total: number }> {
+    try {
+      console.log(`🔍 [CardService] Fetching cards for customer: ${customerId}`)
+      const collection = db.collection(COLLECTIONS.CARDS)
+
+      // Count total cards for this customer
+      const countSnapshot = await collection
+        .where('customerId', '==', customerId)
+        .count()
+        .get()
+      const total = countSnapshot.data().count
+
+      // Get cards for this customer, ordered by most recent first
+      const snapshot = await collection
+        .where('customerId', '==', customerId)
+        .orderBy('createdAt', 'desc')
+        .offset(offset)
+        .limit(limit)
+        .get()
+
+      const cards = snapshot.docs.map(doc => doc.data() as Card)
+
+      console.log(`✅ [CardService] Found ${cards.length} cards for customer ${customerId}`)
       return { cards, total }
     } finally {
       cleanupFirebaseConnection()
