@@ -34,18 +34,28 @@ export async function GET(request: NextRequest) {
       offset,
     })
 
-    const result = await CustomerService.searchCustomers(
-      validatedParams.q,
-      validatedParams.limit,
-      validatedParams.offset
+    // Get all customers and filter by query
+    const allCustomers = await CustomerService.getAllCustomers(100, 0)
+    const filteredCustomers = allCustomers.customers.filter(customer =>
+      customer.name.toLowerCase().includes(q.toLowerCase()) ||
+      customer.phone.includes(q) ||
+      customer.email?.toLowerCase().includes(q.toLowerCase())
     )
+
+    // Apply pagination to filtered results
+    const paginatedCustomers = filteredCustomers.slice(offset, offset + limit)
+
+    const result = {
+      customers: paginatedCustomers,
+      total: filteredCustomers.length
+    }
 
     return NextResponse.json({
       success: true,
       data: {
         customers: result.customers,
         total: result.total,
-        query: validatedParams.q,
+        query: q,
       },
     })
   } catch (error: any) {

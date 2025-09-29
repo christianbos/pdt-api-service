@@ -3,9 +3,10 @@ import { OrderService } from '@/lib/orderService'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { uuid: string } }
+  context: { params: Promise<{ uuid: string }> }
 ) {
   try {
+    const params = await context.params
     const { uuid } = params
 
     // Validar formato UUID (básico)
@@ -51,22 +52,15 @@ export async function GET(
       status: order.status,
       customerName: order.customerName,
       // No mostrar teléfono completo por privacidad
-      customerPhone: order.customerPhone ? order.customerPhone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2') : undefined,
+      customerPhone: undefined, // Not available in Order model
       customerEmail: customerEmail || undefined,
-      priority: order.priority,
+      priority: undefined, // Not available in Order model
       total: order.total,
       estimatedDelivery: order.estimatedDelivery,
       createdAt: order.createdAt,
       storeName: order.storeName || undefined,
       timeline: order.timeline,
-      cards: (order.cards || []).map(card => ({
-        id: card.id,
-        name: card.name,
-        tcg: card.tcg,
-        set: card.set,
-        condition: card.condition,
-        estimatedGrade: card.estimatedGrade,
-      })),
+      cards: [], // Cards not populated in Order model - would need separate query
     }
 
     return NextResponse.json({

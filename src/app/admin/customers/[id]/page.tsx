@@ -152,13 +152,13 @@ export default function CustomerDetailPage({ params }: PageProps) {
             </thead>
             <tbody>
               {orders.map((order) => (
-                <tr key={order.id}>
+                <tr key={order.documentId}>
                   <td><span className="badge bg-primary">#{order.uuid}</span></td>
                   <td><span className={`badge bg-secondary`}>{order.status}</span></td>
                   <td>${order.total.toFixed(2)}</td>
                   <td>{new Date(order.createdAt).toLocaleDateString('es-ES')}</td>
                   <td>
-                    <Link href={`/admin/orders/${order.id}`} className="btn btn-sm btn-outline-info">Ver Orden</Link>
+                    <Link href={`/admin/orders/${order.documentId}`} className="btn btn-sm btn-outline-info">Ver Orden</Link>
                   </td>
                 </tr>
               ))}

@@ -3,9 +3,10 @@ import { OrderService } from '@/lib/orderService'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await context.params
     console.log(`📨 [API] Get cards for order ${params.id}`)
 
     // Verify API key

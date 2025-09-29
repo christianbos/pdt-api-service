@@ -2,12 +2,12 @@
 
 import { useRouter } from 'next/navigation'
 import OrderForm from '@/components/OrderForm'
-import { CreateOrderRequest } from '@/types/order'
+import { CreateOrderRequest, UpdateOrderRequest } from '@/types/order'
 
 export default function NewOrderPage() {
   const router = useRouter()
 
-  const handleSubmit = async (data: CreateOrderRequest) => {
+  const handleSubmit = async (data: CreateOrderRequest | UpdateOrderRequest) => {
     try {
       const response = await fetch('/api/orders', {
         method: 'POST',

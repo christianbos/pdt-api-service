@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
           total: result.total,
           limit,
           offset,
-          hasNext: result.hasNext,
+          hasNext: offset + limit < result.total,
         },
       },
     })

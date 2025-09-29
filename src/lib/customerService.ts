@@ -1,5 +1,6 @@
 import { db, COLLECTIONS, cleanupFirebaseConnection } from './firebase'
 import { Customer, CreateCustomerRequest } from '@/types/customer'
+import { Order } from '@/types/order'
 
 export class CustomerService {
   static async createCustomer(customerData: CreateCustomerRequest): Promise<Customer> {
@@ -111,7 +112,7 @@ export class CustomerService {
       // Sort by createdAt in descending order (most recent first)
       orders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
 
-      const ordersWithCards = []
+      const ordersWithCards: any[] = []
 
       // Import OrderService to avoid circular dependency
       const { OrderService } = await import('./orderService')

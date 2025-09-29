@@ -53,7 +53,7 @@ export class UserService {
       return {
         ...userProfile,
         documentId: userData.uid
-      }
+      } as any
     } catch (error: any) {
       console.error('Error creating user profile:', error)
       throw new Error(`Error al crear perfil de usuario: ${error.message}`)
@@ -73,7 +73,7 @@ export class UserService {
       return {
         documentId: doc.id,
         ...data
-      } as UserProfile
+      } as any
     } catch (error: any) {
       console.error('Error fetching user profile:', error)
       throw new Error(`Error al obtener perfil de usuario: ${error.message}`)
@@ -90,7 +90,7 @@ export class UserService {
         updatedAt: new Date().toISOString()
       }
       delete updateData.uid // No permitir cambiar UID
-      delete updateData.documentId // No permitir cambiar document ID
+      delete (updateData as any).documentId // No permitir cambiar document ID
 
       await docRef.update(updateData)
 
@@ -244,6 +244,7 @@ export class UserService {
             response.user.customerId = customer.documentId
           }
           try {
+            if (!userProfile.customerId) throw new Error('No customerId found')
             const customer = await CustomerService.getCustomerById(userProfile.customerId)
             if (!customer) {
               throw new Error('Customer profile not found for user')
@@ -365,7 +366,7 @@ export class UserService {
         users.push({
           documentId: doc.id,
           ...doc.data()
-        } as UserProfile)
+        } as any)
       })
 
       // Obtener total de usuarios para paginación

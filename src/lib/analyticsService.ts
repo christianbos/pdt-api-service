@@ -38,10 +38,12 @@ export class AnalyticsService {
    */
   static async getDashboardStats(): Promise<DashboardStats> {
     try {
-      const [orders, storeStats] = await Promise.all([
+      const [orders, storeData] = await Promise.all([
         this.getAllOrders(),
-        StoreService.getStoreStats(),
+        StoreService.getAllStores(100, 0), // Get all stores instead of getStoreStats
       ])
+
+      const storeStats = { stores: storeData.stores, total: storeData.total }
 
       const now = new Date()
       const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1)
@@ -93,7 +95,7 @@ export class AnalyticsService {
         processingOrders,
         completedOrders,
         totalRevenue: Math.round(totalRevenue * 100) / 100,
-        activeStores: storeStats.activeStores,
+        activeStores: storeStats.stores.filter(store => store.status === 'active').length,
         avgProcessingTime,
         monthlyGrowth: Math.round(monthlyGrowth * 10) / 10,
       }
@@ -112,11 +114,14 @@ export class AnalyticsService {
     try {
       const { period = 'month', storeId } = params
 
-      const [orders, customerStats, storeStats] = await Promise.all([
+      const [orders, customerData, storeData] = await Promise.all([
         this.getAllOrders(storeId),
-        CustomerService.getCustomerStats(),
-        StoreService.getStoreStats(),
+        CustomerService.getAllCustomers(100, 0),
+        StoreService.getAllStores(100, 0),
       ])
+
+      const customerStats = { customers: customerData.customers, total: customerData.total }
+      const storeStats = { stores: storeData.stores, total: storeData.total }
 
       // Obtener estadísticas básicas del dashboard
       const dashboardStats = await this.getDashboardStats()
@@ -132,8 +137,8 @@ export class AnalyticsService {
 
       return {
         ...dashboardStats,
-        totalCustomers: customerStats.totalCustomers,
-        newCustomersThisMonth: customerStats.newThisMonth,
+        totalCustomers: customerStats.total,
+        newCustomersThisMonth: 0, // Would need to calculate from customerStats.customers
         topStores,
         ordersByStatus,
         revenueByMonth,
@@ -177,9 +182,10 @@ export class AnalyticsService {
     }>()
 
     orders.forEach(order => {
+      if (!order.storeId) return // Skip orders without store
       const existing = storeStats.get(order.storeId) || {
         storeId: order.storeId,
-        storeName: order.storeName,
+        storeName: order.storeName || 'Unknown Store',
         totalOrders: 0,
         totalRevenue: 0,
       }

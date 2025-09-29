@@ -401,7 +401,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.1"
                     min="0"
                     max="1"
-                    value={formData.surface.front.colorWeight}
+                    value={formData.surface.front.colorWeight || ''}
                     onChange={(e) => updateFormData('surface.front.colorWeight', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                     title="Peso del color (0-1)"
@@ -414,7 +414,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.1"
                     min="0"
                     max="1"
-                    value={formData.surface.front.scratchesWeight}
+                    value={formData.surface.front.scratchesWeight || ''}
                     onChange={(e) => updateFormData('surface.front.scratchesWeight', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                     title="Peso de los rayones (0-1)"
@@ -427,7 +427,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.1"
                     min="0"
                     max="1"
-                    value={formData.surface.front.totalWeight}
+                    value={formData.surface.front.totalWeight || ''}
                     onChange={(e) => updateFormData('surface.front.totalWeight', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                     title="Peso total del frente (0-1)"
@@ -473,7 +473,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.1"
                     min="0"
                     max="1"
-                    value={formData.surface.back.colorWeight}
+                    value={formData.surface.back.colorWeight || ''}
                     onChange={(e) => updateFormData('surface.back.colorWeight', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                     title="Peso del color (0-1)"
@@ -486,7 +486,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.1"
                     min="0"
                     max="1"
-                    value={formData.surface.back.scratchesWeight}
+                    value={formData.surface.back.scratchesWeight || ''}
                     onChange={(e) => updateFormData('surface.back.scratchesWeight', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                     title="Peso de los rayones (0-1)"
@@ -499,7 +499,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     step="0.1"
                     min="0"
                     max="1"
-                    value={formData.surface.back.totalWeight}
+                    value={formData.surface.back.totalWeight || ''}
                     onChange={(e) => updateFormData('surface.back.totalWeight', e.target.value ? parseFloat(e.target.value) : null)}
                     className="form-control"
                     title="Peso total del reverso (0-1)"

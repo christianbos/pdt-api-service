@@ -2,12 +2,12 @@
 
 import { useRouter } from 'next/navigation'
 import CustomerForm from '@/components/CustomerForm'
-import { CreateCustomerRequest } from '@/types/customer'
+import { CreateCustomerRequest, UpdateCustomerRequest } from '@/types/customer'
 
 export default function NewCustomerPage() {
   const router = useRouter()
 
-  const handleSubmit = async (data: CreateCustomerRequest) => {
+  const handleSubmit = async (data: CreateCustomerRequest | UpdateCustomerRequest) => {
     try {
       const response = await fetch('/api/customers', {
         method: 'POST',

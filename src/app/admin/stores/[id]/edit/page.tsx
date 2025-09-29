@@ -110,7 +110,7 @@ export default function EditStorePage({ params }: PageProps) {
           </div>
           <div>
             <h1 className="h3 mb-0 fw-bold">
-              Editar Tienda #{store.id}
+              Editar Tienda #{store.documentId}
             </h1>
             <small className="text-muted">
               Modifica la información de la tienda: {store.name}

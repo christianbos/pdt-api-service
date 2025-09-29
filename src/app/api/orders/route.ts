@@ -92,6 +92,11 @@ export async function GET(request: NextRequest) {
     const sortBy = searchParams.get('sortBy') as 'createdAt' | 'updatedAt' | 'estimatedDelivery' || 'createdAt'
     const sortOrder = searchParams.get('sortOrder') as 'asc' | 'desc' || 'desc'
 
+    // Filter sortBy to only valid values
+    const validSortBy = ['createdAt', 'updatedAt', 'total', 'customerName'].includes(sortBy) ?
+      sortBy as 'createdAt' | 'updatedAt' | 'total' | 'customerName' :
+      'createdAt'
+
     const result = await OrderService.getOrders({
       page,
       limit,
@@ -99,7 +104,7 @@ export async function GET(request: NextRequest) {
       storeId: storeId || undefined,
       customerId: customerId || undefined,
       search: search || undefined,
-      sortBy,
+      sortBy: validSortBy,
       sortOrder,
     })
 

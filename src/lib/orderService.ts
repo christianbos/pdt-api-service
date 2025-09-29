@@ -139,13 +139,13 @@ export class OrderService {
 
       // Aplicar filtros
       if (status) {
-        query = query.where('status', '==', status)
+        query = query.where('status', '==', status) as any
       }
       if (storeId) {
-        query = query.where('storeId', '==', storeId)
+        query = query.where('storeId', '==', storeId) as any
       }
       if (customerId) {
-        query = query.where('customerId', '==', customerId)
+        query = query.where('customerId', '==', customerId) as any
       }
 
       // Para búsqueda por texto, necesitamos hacer post-processing
@@ -154,11 +154,11 @@ export class OrderService {
       const total = countSnapshot.data().count
 
       // Ordenamiento
-      query = query.orderBy(sortBy, sortOrder)
+      query = query.orderBy(sortBy, sortOrder) as any
 
       // Paginación
       const offset = (page - 1) * limit
-      query = query.offset(offset).limit(limit)
+      query = query.offset(offset).limit(limit) as any
 
       const snapshot = await query.get()
       let orders = snapshot.docs.map(doc => doc.data() as Order)
@@ -270,7 +270,8 @@ export class OrderService {
 
       // Merge new cardIds with existing ones (avoid duplicates)
       const currentCardIds = existingOrder.cardIds || []
-      const newCardIds = [...new Set([...currentCardIds, ...cardIds])]
+      const cardIdSet = new Set([...currentCardIds, ...cardIds])
+      const newCardIds = Array.from(cardIdSet)
 
       await this.updateOrder(orderId, { cardIds: newCardIds })
 

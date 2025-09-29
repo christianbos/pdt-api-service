@@ -2,12 +2,12 @@
 
 import { useRouter } from 'next/navigation'
 import StoreForm from '@/components/StoreForm'
-import { CreateStoreRequest } from '@/types/store'
+import { CreateStoreRequest, UpdateStoreRequest } from '@/types/store'
 
 export default function NewStorePage() {
   const router = useRouter()
 
-  const handleSubmit = async (data: CreateStoreRequest) => {
+  const handleSubmit = async (data: CreateStoreRequest | UpdateStoreRequest) => {
     try {
       const response = await fetch('/api/stores', {
         method: 'POST',

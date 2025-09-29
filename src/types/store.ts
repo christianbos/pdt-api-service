@@ -24,6 +24,16 @@ export interface CreateStoreRequest {
   mysteryPackPrice: number
 }
 
+export interface UpdateStoreRequest {
+  name?: string
+  email?: string
+  phone?: string
+  address?: string
+  logoUrl?: string
+  gradingPrice?: number
+  mysteryPackPrice?: number
+}
+
 // Precios por defecto para nuevas tiendas
 export const DEFAULT_STORE_PRICING = {
   gradingPrice: 280,

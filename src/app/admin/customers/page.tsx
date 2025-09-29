@@ -150,8 +150,6 @@ export default function AdminCustomers() {
             <tr>
               <th>Cliente</th>
               <th>Contacto</th>
-              <th>Pedidos</th>
-              <th>Gasto Total</th>
               <th>Fecha de Registro</th>
               <th className="text-end">Acciones</th>
             </tr>
@@ -165,12 +163,6 @@ export default function AdminCustomers() {
                 <td>
                   <div>{customer.phone}</div>
                   {customer.email && <div className="text-muted small">{customer.email}</div>}
-                </td>
-                <td>
-                  <span className="badge bg-light text-dark">{customer.totalOrders || 0}</span>
-                </td>
-                <td>
-                  <span className="badge bg-success-light text-success">${(customer.totalSpent || 0).toFixed(2)}</span>
                 </td>
                 <td>
                   {new Date(customer.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}

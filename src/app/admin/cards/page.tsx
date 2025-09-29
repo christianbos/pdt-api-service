@@ -29,13 +29,19 @@ export default function AdminDashboard() {
       
       if (response.ok) {
         const data = await response.json()
-        setCards(data.data || [])
-        setTotalCards(data.meta?.pagination?.total || 0)
+        // Ensure we always set an array
+        const cardsArray = Array.isArray(data.data?.cards) ? data.data.cards :
+                          Array.isArray(data.data) ? data.data : []
+        setCards(cardsArray)
+        setTotalCards(data.meta?.pagination?.total || data.total || 0)
       } else {
         console.error('Error fetching cards')
+        setCards([])
       }
     } catch (error) {
       console.error('Error:', error)
+      setCards([])
+      setTotalCards(0)
     } finally {
       setLoading(false)
     }
@@ -70,10 +76,10 @@ export default function AdminDashboard() {
     }
   }
 
-  const filteredCards = cards.filter(card =>
+  const filteredCards = Array.isArray(cards) ? cards.filter(card =>
     card.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     card.certificationNumber.toString().includes(searchTerm)
-  )
+  ) : []
 
   const totalPages = Math.ceil(totalCards / cardsPerPage)
 

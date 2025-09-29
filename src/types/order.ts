@@ -235,3 +235,10 @@ export function updateTimeline(
   return newTimeline
 }
 
+export const BulkUpdateOrderSchema = z.object({
+  orderIds: z.array(z.string()).min(1, 'At least one order ID is required'),
+  status: z.enum(['pending', 'received', 'processing', 'encapsulated', 'completed', 'shipped', 'delivered']).optional(),
+  assignedTo: z.string().optional(),
+  performedBy: z.string().optional()
+})
+

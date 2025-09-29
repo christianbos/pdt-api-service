@@ -75,18 +75,14 @@ export const CreateUserProfileSchema = z.object({
   uid: z.string().min(1, 'UID es requerido'),
   email: z.string().email('Email inválido'),
   name: z.string().min(1, 'El nombre es requerido').max(100, 'El nombre no puede exceder 100 caracteres'),
-  role: z.enum(['admin', 'store_owner', 'customer'], {
-    errorMap: () => ({ message: 'Rol inválido. Debe ser admin, store_owner o customer' })
-  }),
+  role: z.enum(['admin', 'store_owner', 'customer']),
   storeId: z.string().optional(),
   customerId: z.string().optional()
 })
 
 export const UpdateUserProfileSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido').max(100, 'El nombre no puede exceder 100 caracteres').optional(),
-  role: z.enum(['admin', 'store_owner', 'customer'], {
-    errorMap: () => ({ message: 'Rol inválido. Debe ser admin, store_owner o customer' })
-  }).optional(),
+  role: z.enum(['admin', 'store_owner', 'customer']).optional(),
   storeId: z.string().optional(),
   customerId: z.string().optional(),
   isActive: z.boolean().optional()

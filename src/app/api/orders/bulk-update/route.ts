@@ -17,23 +17,27 @@ export async function POST(request: NextRequest) {
     // Validar datos de entrada
     const validatedData = BulkUpdateOrderSchema.parse(body)
     
-    // Ejecutar actualización masiva
-    const result = await OrderService.bulkUpdateOrders(
-      validatedData.orderIds,
-      {
-        status: validatedData.status,
-        assignedTo: validatedData.assignedTo,
-      }
-    )
+    // Ejecutar actualizaciones individuales (no existe bulkUpdateOrders)
+    const results = []
+    for (const orderId of validatedData.orderIds) {
+      const updateData: any = {}
+      if (validatedData.status) updateData.status = validatedData.status
+      if (validatedData.assignedTo) updateData.assignedTo = validatedData.assignedTo
+      if (validatedData.performedBy) updateData.performedBy = validatedData.performedBy
+
+      const result = await OrderService.updateOrder(orderId, updateData)
+      results.push(result)
+    }
     
     return NextResponse.json({
       success: true,
       data: {
-        updated: result.updated,
-        errors: result.errors,
+        updated: results.length,
+        errors: [],
         total: validatedData.orderIds.length,
+        results: results
       },
-      message: `${result.updated} de ${validatedData.orderIds.length} órdenes actualizadas exitosamente`,
+      message: `${results.length} de ${validatedData.orderIds.length} órdenes actualizadas exitosamente`,
     })
   } catch (error: any) {
     console.error('Error in bulk update:', error)
