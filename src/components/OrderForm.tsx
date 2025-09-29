@@ -101,6 +101,35 @@ export default function OrderForm({ initialData, onSubmit, submitLabel, isEditin
     }
   }, [showCardSection, formData.customerId])
 
+  // Cargar cartas ya asignadas a la orden cuando estamos editando
+  useEffect(() => {
+    if (isEditing && initialData?.cardIds && initialData.cardIds.length > 0) {
+      // Cargar las cartas que ya están asignadas a esta orden
+      const loadAssignedCards = async () => {
+        try {
+          const cardPromises = initialData.cardIds!.map(async (cardId) => {
+            const response = await fetch(`/api/cards/${cardId}`, {
+              headers: { 'x-api-key': process.env.NEXT_PUBLIC_API_KEY || '' }
+            })
+            if (response.ok) {
+              const data = await response.json()
+              return data.data?.card
+            }
+            return null
+          })
+
+          const cards = await Promise.all(cardPromises)
+          const validCards = cards.filter(card => card !== null)
+          setSelectedCards(validCards)
+        } catch (error) {
+          console.error('Error loading assigned cards:', error)
+        }
+      }
+
+      loadAssignedCards()
+    }
+  }, [isEditing, initialData?.cardIds])
+
   const handleCustomerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const customerId = e.target.value
     const customer = customers.find(c => c.documentId === customerId)
@@ -417,8 +446,7 @@ export default function OrderForm({ initialData, onSubmit, submitLabel, isEditin
       </div>
 
       {/* Sección de Cartas (Opcional) */}
-      {!isEditing && (
-        <div className="card mb-4">
+      <div className="card mb-4">
           <div className="card-header d-flex justify-content-between align-items-center">
             <h3 className="card-title mb-0">Cartas a Incluir (Opcional)</h3>
             <button
@@ -538,7 +566,6 @@ export default function OrderForm({ initialData, onSubmit, submitLabel, isEditin
             </div>
           )}
         </div>
-      )}
 
       {/* Submit Button */}
       <div className="d-flex justify-content-end">

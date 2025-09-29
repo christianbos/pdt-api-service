@@ -60,7 +60,7 @@ export async function GET(
       createdAt: order.createdAt,
       storeName: order.storeName || undefined,
       timeline: order.timeline,
-      cards: [], // Cards not populated in Order model - would need separate query
+      cards: (order as any).cards || [], // Include cards if available from OrderService.getOrderByUuid
     }
 
     return NextResponse.json({

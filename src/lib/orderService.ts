@@ -313,23 +313,18 @@ export class OrderService {
         return []
       }
 
-      // Import CardService here to avoid circular dependency
-      const { CardService } = await import('./cardService')
-
       const cards = []
       for (const cardId of order.cardIds) {
         try {
-          // First try to get card by documentId
           const cardDoc = await db.collection(COLLECTIONS.CARDS).doc(cardId).get()
           if (cardDoc.exists) {
-            cards.push(cardDoc.data())
+            cards.push({ documentId: cardDoc.id, ...cardDoc.data() })
           }
         } catch (error) {
           console.warn(`⚠️ Could not fetch card ${cardId}:`, error)
         }
       }
 
-      console.log(`🃏 [OrderService] Found ${cards.length} cards for order ${orderId}`)
       return cards
     } finally {
       cleanupFirebaseConnection()

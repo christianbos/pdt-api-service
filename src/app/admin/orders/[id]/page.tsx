@@ -16,6 +16,8 @@ export default function OrderDetailPage({ params }: PageProps) {
   const [order, setOrder] = useState<Order | null>(null)
   const [loading, setLoading] = useState(true)
   const [orderId, setOrderId] = useState<string>('')
+  const [cards, setCards] = useState<any[]>([])
+  const [loadingCards, setLoadingCards] = useState(false)
 
   useEffect(() => {
     const fetchParams = async () => {
@@ -55,6 +57,37 @@ export default function OrderDetailPage({ params }: PageProps) {
       fetchOrder()
     }
   }, [orderId, fetchOrder])
+
+  const fetchOrderCards = useCallback(async () => {
+    if (!orderId) return
+    try {
+      setLoadingCards(true)
+      const response = await fetch(`/api/orders/${orderId}/cards`, {
+        headers: {
+          'x-api-key': process.env.NEXT_PUBLIC_API_KEY || ''
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setCards(data.data || [])
+      } else {
+        console.error('Error fetching order cards')
+        setCards([])
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      setCards([])
+    } finally {
+      setLoadingCards(false)
+    }
+  }, [orderId])
+
+  useEffect(() => {
+    if (orderId) {
+      fetchOrderCards()
+    }
+  }, [orderId, fetchOrderCards])
 
   const getProductDisplayName = (productType: string) => {
     return productType === 'grading' ? 'Grading Service' : 'Mystery Pack'
@@ -316,6 +349,82 @@ export default function OrderDetailPage({ params }: PageProps) {
             ) : (
               <div className="text-center text-muted py-4">
                 <p>No hay productos en esta orden</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Cards */}
+      <div className="mt-4">
+        <div className="card">
+          <div className="card-header">
+            <h5 className="mb-0">Cartas Asignadas a la Orden</h5>
+          </div>
+          <div className="card-body">
+            {loadingCards ? (
+              <div className="text-center py-4">
+                <div className="spinner-border text-primary" role="status">
+                  <span className="visually-hidden">Cargando cartas...</span>
+                </div>
+                <p className="mt-2 text-muted">Cargando cartas...</p>
+              </div>
+            ) : cards && cards.length > 0 ? (
+              <div className="row g-3">
+                {cards.map((card, index) => (
+                  <div key={card.documentId || index} className="col-md-6 col-lg-4">
+                    <div className="card bg-light border">
+                      <div className="card-body p-3">
+                        <div className="d-flex justify-content-between align-items-start mb-2">
+                          <div>
+                            <h6 className="card-title mb-1">{card.name}</h6>
+                            <small className="text-muted">#{card.certificationNumber}</small>
+                          </div>
+                          {card.finalGrade && (
+                            <span className="badge bg-primary">{card.finalGrade}</span>
+                          )}
+                        </div>
+                        <div className="row g-2 small text-muted">
+                          <div className="col-6">
+                            <strong>Set:</strong> {card.set || 'N/A'}
+                          </div>
+                          <div className="col-6">
+                            <strong>Año:</strong> {card.year || 'N/A'}
+                          </div>
+                          <div className="col-6">
+                            <strong>Rareza:</strong> {card.rarity || 'N/A'}
+                          </div>
+                          <div className="col-6">
+                            <strong>Estado:</strong>
+                            <span className={`badge ms-1 ${
+                              card.status === 'graded' ? 'bg-success' :
+                              card.status === 'grading' ? 'bg-warning' :
+                              'bg-secondary'
+                            }`}>
+                              {card.status || 'pending'}
+                            </span>
+                          </div>
+                        </div>
+                        {card.notes && (
+                          <div className="mt-2">
+                            <small className="text-muted">
+                              <strong>Notas:</strong> {card.notes}
+                            </small>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center text-muted py-4">
+                <svg width="48" height="48" fill="currentColor" viewBox="0 0 16 16" className="mb-3">
+                  <path d="M14 1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H4.414A2 2 0 0 0 3 11.586l-2 2V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12.793a.5.5 0 0 0 .854.353l2.853-2.853A1 1 0 0 1 4.414 12H14a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
+                  <path d="M3 3.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zM3 6a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9A.5.5 0 0 1 3 6zm0 2.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z"/>
+                </svg>
+                <p>No hay cartas asignadas a esta orden</p>
+                <p className="small">Las cartas se pueden asignar al editar la orden</p>
               </div>
             )}
           </div>
