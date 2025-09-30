@@ -1,10 +1,9 @@
 import { z } from 'zod'
 
-export type OrderStatus = 
+export type OrderStatus =
   | 'pending'       // Orden creada, esperando cartas
   | 'received'      // Cartas recibidas en PDT
   | 'processing'    // En proceso de gradeo
-  | 'encapsulated'  // Cartas encapsuladas
   | 'completed'     // Gradeo completado
   | 'shipped'       // Enviado de regreso
   | 'delivered'     // Entregado al cliente
@@ -70,7 +69,7 @@ export const UpdateOrderSchema = z.object({
   customerName: z.string().min(1, 'El nombre del cliente es requerido').optional(),
   storeId: z.string().optional(),
   storeName: z.string().optional(),
-  status: z.enum(['pending', 'received', 'processing', 'encapsulated', 'completed', 'shipped', 'delivered']).optional(),
+  status: z.enum(['pending', 'received', 'processing', 'completed', 'shipped', 'delivered']).optional(),
   items: z.array(z.object({
     productType: z.enum(['grading', 'mysterypack']),
     quantity: z.number().min(1, 'La cantidad debe ser mayor a 0'),
@@ -114,8 +113,7 @@ export const CLIENT_PRICING = {
 export const ORDER_STATUS_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   pending: ['received'],
   received: ['processing'],
-  processing: ['encapsulated'],
-  encapsulated: ['completed'],
+  processing: ['completed'],
   completed: ['shipped'],
   shipped: ['delivered'],
   delivered: [] // Estado final
@@ -146,29 +144,23 @@ export const ORDER_STATUS_METADATA: Record<OrderStatus, {
     description: 'Las cartas están siendo evaluadas por nuestros expertos',
     estimatedDays: 7
   },
-  encapsulated: {
-    step: 4,
-    title: 'Cartas Encapsuladas',
-    description: 'Las cartas han sido encapsuladas con su calificación',
-    estimatedDays: 10
-  },
   completed: {
-    step: 5,
+    step: 4,
     title: 'Gradeo Completado',
     description: 'El proceso de gradeo ha sido completado exitosamente',
-    estimatedDays: 12
+    estimatedDays: 10
   },
   shipped: {
-    step: 6,
+    step: 5,
     title: 'Enviado',
     description: 'Las cartas han sido enviadas de regreso',
-    estimatedDays: 14
+    estimatedDays: 12
   },
   delivered: {
-    step: 7,
+    step: 6,
     title: 'Entregado',
     description: 'Las cartas han sido entregadas al cliente',
-    estimatedDays: 16
+    estimatedDays: 14
   }
 }
 
@@ -184,8 +176,8 @@ export function getValidNextStatuses(currentStatus: OrderStatus): OrderStatus[] 
 
 // Función para generar timeline inicial
 export function generateInitialTimeline(): OrderStatusEntry[] {
-  const allStatuses: OrderStatus[] = ['pending', 'received', 'processing', 'encapsulated', 'completed', 'shipped', 'delivered']
-  
+  const allStatuses: OrderStatus[] = ['pending', 'received', 'processing', 'completed', 'shipped', 'delivered']
+
   return allStatuses.map((status, index) => {
     const metadata = ORDER_STATUS_METADATA[status]
     return {
@@ -193,10 +185,8 @@ export function generateInitialTimeline(): OrderStatusEntry[] {
       status: index === 0 ? 'current' : 'pending',
       title: metadata.title,
       description: metadata.description,
-      date: index === 0 ? new Date().toISOString() : undefined,
-      estimatedDate: index > 0 ? 
-        new Date(Date.now() + metadata.estimatedDays * 24 * 60 * 60 * 1000).toISOString() : 
-        undefined
+      date: index === 0 ? new Date().toISOString() : undefined
+      // Eliminado estimatedDate - solo fechas reales
     }
   })
 }
@@ -222,7 +212,7 @@ export function updateTimeline(
   }
   
   // Marcar el nuevo estado como actual
-  const newIndex = newTimeline.findIndex(entry => entry.step === statusMetadata.step)
+  const newIndex = newTimeline.findIndex(entry => entry.title === statusMetadata.title)
   if (newIndex !== -1) {
     newTimeline[newIndex] = {
       ...newTimeline[newIndex],
@@ -237,7 +227,7 @@ export function updateTimeline(
 
 export const BulkUpdateOrderSchema = z.object({
   orderIds: z.array(z.string()).min(1, 'At least one order ID is required'),
-  status: z.enum(['pending', 'received', 'processing', 'encapsulated', 'completed', 'shipped', 'delivered']).optional(),
+  status: z.enum(['pending', 'received', 'processing', 'completed', 'shipped', 'delivered']).optional(),
   assignedTo: z.string().optional(),
   performedBy: z.string().optional()
 })
