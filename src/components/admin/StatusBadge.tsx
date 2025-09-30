@@ -15,7 +15,6 @@ export function StatusBadge({ status, size = 'md' }: StatusBadgeProps) {
       case 'pending': return 'bg-secondary'
       case 'received': return 'bg-info'
       case 'processing': return 'bg-warning text-dark'
-      case 'encapsulated': return 'bg-primary'
       case 'completed': return 'bg-success'
       case 'shipped': return 'bg-dark'
       case 'delivered': return 'bg-success'

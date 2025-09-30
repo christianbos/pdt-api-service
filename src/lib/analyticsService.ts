@@ -52,7 +52,7 @@ export class AnalyticsService {
       // Calcular estadísticas básicas
       const totalOrders = orders.length
       const pendingOrders = orders.filter(o => ['pending', 'received'].includes(o.status)).length
-      const processingOrders = orders.filter(o => ['processing', 'encapsulated'].includes(o.status)).length
+      const processingOrders = orders.filter(o => o.status === 'processing').length
       const completedOrders = orders.filter(o => ['completed', 'shipped', 'delivered'].includes(o.status)).length
       
       const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0)

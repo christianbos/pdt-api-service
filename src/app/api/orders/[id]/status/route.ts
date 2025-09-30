@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { OrderStatus, getValidNextStatuses, ORDER_STATUS_METADATA } from '@/types/order'
 
 const UpdateStatusSchema = z.object({
-  status: z.enum(['pending', 'received', 'processing', 'encapsulated', 'completed', 'shipped', 'delivered']),
+  status: z.enum(['pending', 'received', 'processing', 'completed', 'shipped', 'delivered']),
   performedBy: z.string().optional()
 })
 
