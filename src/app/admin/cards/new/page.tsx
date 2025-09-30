@@ -8,26 +8,19 @@ export default function NewCardPage() {
   const router = useRouter()
 
   const handleSubmit = async (data: CreateCardRequest) => {
-    try {
-      const response = await fetch('/api/cards', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': process.env.NEXT_PUBLIC_API_KEY || ''
-        },
-        body: JSON.stringify(data)
-      })
+    const response = await fetch('/api/cards', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.NEXT_PUBLIC_API_KEY || ''
+      },
+      body: JSON.stringify(data)
+    })
 
-      if (response.ok) {
-        alert('Carta creada exitosamente')
-        router.push('/admin')
-      } else {
-        const error = await response.json()
-        alert('Error al crear la carta: ' + error.error)
-      }
-    } catch (error) {
-      console.error('Error:', error)
-      alert('Error al crear la carta')
+    if (response.ok) {
+      router.push('/admin')
+    } else {
+      throw new Error('Error al crear la carta')
     }
   }
 
