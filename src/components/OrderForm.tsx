@@ -104,7 +104,7 @@ export default function OrderForm({ initialData, onSubmit, submitLabel, isEditin
     if (showCardSection && formData.customerId) {
       searchAvailableCards()
     }
-  }, [showCardSection, formData.customerId])
+  }, [showCardSection, formData.customerId, searchAvailableCards])
 
   // Cargar cartas ya asignadas a la orden cuando estamos editando
   useEffect(() => {
@@ -485,7 +485,7 @@ export default function OrderForm({ initialData, onSubmit, submitLabel, isEditin
             )}
 
             {!selectedCards.length && !showCardSection && (
-              <p className="text-muted mb-0">No hay cartas asignadas. Haz clic en "Gestionar cartas" para agregar.</p>
+              <p className="text-muted mb-0">No hay cartas asignadas. Haz clic en &ldquo;Gestionar cartas&rdquo; para agregar.</p>
             )}
 
             {showCardSection && (
