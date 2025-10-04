@@ -252,6 +252,17 @@ export default function AdminOrders() {
                 </td>
                 <td className="text-end">
                   <div className="btn-group btn-group-sm">
+                    <a
+                      href={`https://www.pdtgrading.com/track/${order.uuid}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-outline-success"
+                      title="Ver tracking público"
+                    >
+                      <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+                      </svg>
+                    </a>
                     <Link
                       href={`/admin/orders/${order.documentId}`}
                       className="btn btn-outline-info"

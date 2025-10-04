@@ -84,35 +84,8 @@ export class CardService {
     }
   }
 
-  // Get cards by customer ID
-  static async getCardsByCustomerId(customerId: string, limit = 50, offset = 0): Promise<{ cards: Card[], total: number }> {
-    try {
-      console.log(`🔍 [CardService] Fetching cards for customer: ${customerId}`)
-      const collection = db.collection(COLLECTIONS.CARDS)
-
-      // Count total cards for this customer
-      const countSnapshot = await collection
-        .where('customerId', '==', customerId)
-        .count()
-        .get()
-      const total = countSnapshot.data().count
-
-      // Get cards for this customer, ordered by most recent first
-      const snapshot = await collection
-        .where('customerId', '==', customerId)
-        .orderBy('createdAt', 'desc')
-        .offset(offset)
-        .limit(limit)
-        .get()
-
-      const cards = snapshot.docs.map(doc => doc.data() as Card)
-
-      console.log(`✅ [CardService] Found ${cards.length} cards for customer ${customerId}`)
-      return { cards, total }
-    } finally {
-      cleanupFirebaseConnection()
-    }
-  }
+  // Las cartas ahora se obtienen a través de las órdenes
+  // Para obtener cartas de un cliente: buscar sus órdenes y luego las cartas de cada orden
 
   static async updateCard(certificationNumber: number, updates: Partial<CreateCardRequest & { images?: CardImages | string[] }>): Promise<Card> {
     const existingCard = await this.getCardByCertificationNumber(certificationNumber)

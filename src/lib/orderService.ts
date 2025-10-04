@@ -69,29 +69,8 @@ export class OrderService {
       const docRef = await collection.add(orderToCreate)
       await docRef.update({ documentId: docRef.id })
 
-      // Si se proporcionaron cardIds, actualizar las cartas con el orderId
-      if (orderData.cardIds && orderData.cardIds.length > 0) {
-        console.log(`🃏 [OrderService] Updating ${orderData.cardIds.length} cards with orderId: ${docRef.id}`)
-
-        // Actualizar cada carta con el orderId y customerId
-        const batch = db.batch()
-        for (const cardId of orderData.cardIds) {
-          const cardRef = db.collection(COLLECTIONS.CARDS).doc(cardId)
-          batch.update(cardRef, {
-            orderId: docRef.id,
-            customerId: orderData.customerId || customerName, // Usar customerId si existe, sino el nombre
-            updatedAt: new Date().toISOString()
-          })
-        }
-
-        try {
-          await batch.commit()
-          console.log(`✅ [OrderService] Successfully updated ${orderData.cardIds.length} cards with order reference`)
-        } catch (error) {
-          console.warn(`⚠️ [OrderService] Failed to update some cards with order reference:`, error)
-          // No fallar la creación de la orden por esto
-        }
-      }
+      // Las cartas ahora solo se relacionan con órdenes
+      // La relación con el cliente se obtiene a través de la orden
 
       const doc = await docRef.get()
       return doc.data() as Order

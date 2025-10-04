@@ -76,8 +76,6 @@ export interface Card {
   gradeText?: string;
   notes?: string | null;
   gradeDate?: string;
-  customerId?: string;  // Reference to the customer who owns this card
-  orderId?: string;     // Reference to the order that created this card
   surface: Surface;
   edges: Edges;
   corners: Corners;
@@ -166,8 +164,6 @@ export interface CreateCardRequest {
   gradeText?: string;
   notes?: string | null;
   gradeDate?: string;
-  customerId?: string;  // Reference to the customer who owns this card
-  orderId?: string;     // Reference to the order that created this card
   surface: Surface;
   edges: Edges;
   corners: Corners;

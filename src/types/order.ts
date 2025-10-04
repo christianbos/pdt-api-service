@@ -76,6 +76,7 @@ export const UpdateOrderSchema = z.object({
     unitPrice: z.number().min(0, 'El precio unitario debe ser mayor o igual a 0'),
     subtotal: z.number().min(0, 'El subtotal debe ser mayor o igual a 0')
   })).optional(),
+  cardIds: z.array(z.string()).optional(),
   assignedTo: z.string().optional(),
   estimatedDelivery: z.string().optional()
 })

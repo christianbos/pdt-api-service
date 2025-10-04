@@ -100,8 +100,6 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
         gradeDate: formData.get('gradeDate')
           ? new Date(formData.get('gradeDate') as string).toISOString()
           : new Date().toISOString(),
-        customerId: formData.get('customerId') as string || '',
-        orderId: formData.get('orderId') as string || '',
         surface: {
           finalScore: Number(formData.get('surface.finalScore')) || 0,
           bent: Number(formData.get('surface.bent')) || 0,
@@ -849,47 +847,9 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
               Puedes asignar esta carta directamente a un cliente o a una orden específica al crearla.
             </p>
 
-            <div className="row g-3">
-              <div className="col-md-6">
-                <label className="form-label">Cliente</label>
-                <select
-                  name="customerId"
-                  className="form-select"
-                >
-                  <option value="">Seleccionar cliente (opcional)</option>
-                  {customers.map(customer => (
-                    <option key={customer.documentId} value={customer.documentId}>
-                      {customer.name} • {customer.email || 'Sin email'} • Tel: {customer.phone}
-                    </option>
-                  ))}
-                </select>
-                <div className="form-text">
-                  Si asignas a un cliente, esta carta aparecerá en su historial
-                </div>
-              </div>
-
-              <div className="col-md-6">
-                <label className="form-label">Orden</label>
-                <select
-                  name="orderId"
-                  className="form-select"
-                >
-                  <option value="">Seleccionar orden (opcional)</option>
-                  {orders.map(order => (
-                    <option key={order.documentId} value={order.documentId}>
-                      #{order.uuid} - {order.customerName} ({order.status})
-                    </option>
-                  ))}
-                </select>
-                <div className="form-text">
-                  Selecciona una orden para asignar la carta
-                </div>
-              </div>
-            </div>
-
             <div className="alert alert-info mt-3">
               <small>
-                <strong>Nota:</strong> La asignación de cliente y orden es opcional. Puedes dejar estos campos vacíos.
+                <strong>Nota:</strong> Las cartas se asignan a clientes a través de las órdenes. Crea o edita una orden para asignar cartas.
               </small>
             </div>
           </div>

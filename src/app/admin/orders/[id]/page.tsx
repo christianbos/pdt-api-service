@@ -191,6 +191,17 @@ export default function OrderDetailPage({ params }: PageProps) {
             </small>
           </div>
           <div className="d-flex gap-2">
+            <a
+              href={`https://www.pdtgrading.com/track/${order.uuid}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-outline-success"
+            >
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" className="me-1">
+                <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+              </svg>
+              Tracking Público
+            </a>
             <Link
               href={`/admin/orders/${order.documentId}/edit`}
               className="btn btn-outline-primary"
@@ -295,7 +306,18 @@ export default function OrderDetailPage({ params }: PageProps) {
               <h5 className="mb-0">Acciones</h5>
             </div>
             <div className="card-body d-grid gap-2">
-              <Link 
+              <a
+                href={`https://www.pdtgrading.com/track/${order.uuid}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-success"
+              >
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" className="me-1">
+                  <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+                </svg>
+                Ver Tracking Público
+              </a>
+              <Link
                 href={`/admin/orders/${order.documentId}/edit`}
                 className="btn btn-outline-primary"
               >
@@ -391,18 +413,8 @@ export default function OrderDetailPage({ params }: PageProps) {
                           <div className="col-6">
                             <strong>Año:</strong> {card.year || 'N/A'}
                           </div>
-                          <div className="col-6">
+                          <div className="col-12">
                             <strong>Rareza:</strong> {card.rarity || 'N/A'}
-                          </div>
-                          <div className="col-6">
-                            <strong>Estado:</strong>
-                            <span className={`badge ms-1 ${
-                              card.status === 'graded' ? 'bg-success' :
-                              card.status === 'grading' ? 'bg-warning' :
-                              'bg-secondary'
-                            }`}>
-                              {card.status || 'pending'}
-                            </span>
                           </div>
                         </div>
                         {card.notes && (

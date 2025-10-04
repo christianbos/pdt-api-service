@@ -75,17 +75,22 @@ export default function OrderForm({ initialData, onSubmit, submitLabel, isEditin
 
       if (response.ok) {
         const data = await response.json()
-        // Filtrar cartas que no tengan orderId (están disponibles)
-        const available = data.data?.cards?.filter((card: any) => !card.orderId) || []
+        const allCards = data.data?.cards || []
 
-        // Si hay customer seleccionado, priorizar sus cartas
-        if (formData.customerId) {
-          const customerCards = available.filter((card: any) => card.customerId === formData.customerId)
-          const otherCards = available.filter((card: any) => card.customerId !== formData.customerId)
-          setAvailableCards([...customerCards, ...otherCards])
-        } else {
-          setAvailableCards(available)
-        }
+        console.log('🔍 Total cards from API:', allCards.length)
+
+        // Filtrar cartas que NO estén ya seleccionadas en este formulario
+        const selectedCardIds = selectedCards.map(c => c.documentId)
+        const available = allCards.filter((card: any) =>
+          !selectedCardIds.includes(card.documentId)
+        )
+
+        console.log('✅ Available cards (not in selected):', available.length)
+        console.log('🔒 Selected cards:', selectedCardIds)
+
+        // Mostrar todas las cartas disponibles sin filtrar por cliente
+        // La relación con el cliente se maneja a través de la orden
+        setAvailableCards(available)
       }
     } catch (error) {
       console.error('Error searching cards:', error)
@@ -103,24 +108,18 @@ export default function OrderForm({ initialData, onSubmit, submitLabel, isEditin
 
   // Cargar cartas ya asignadas a la orden cuando estamos editando
   useEffect(() => {
-    if (isEditing && initialData?.cardIds && initialData.cardIds.length > 0) {
-      // Cargar las cartas que ya están asignadas a esta orden
+    if (isEditing && initialData?.documentId) {
       const loadAssignedCards = async () => {
         try {
-          const cardPromises = initialData.cardIds!.map(async (cardId) => {
-            const response = await fetch(`/api/cards/${cardId}`, {
-              headers: { 'x-api-key': process.env.NEXT_PUBLIC_API_KEY || '' }
-            })
-            if (response.ok) {
-              const data = await response.json()
-              return data.data?.card
-            }
-            return null
+          const response = await fetch(`/api/orders/${initialData.documentId}/cards`, {
+            headers: { 'x-api-key': process.env.NEXT_PUBLIC_API_KEY || '' }
           })
 
-          const cards = await Promise.all(cardPromises)
-          const validCards = cards.filter(card => card !== null)
-          setSelectedCards(validCards)
+          if (response.ok) {
+            const data = await response.json()
+            const cards = data.data || []
+            setSelectedCards(cards)
+          }
         } catch (error) {
           console.error('Error loading assigned cards:', error)
         }
@@ -128,7 +127,7 @@ export default function OrderForm({ initialData, onSubmit, submitLabel, isEditin
 
       loadAssignedCards()
     }
-  }, [isEditing, initialData?.cardIds])
+  }, [isEditing, initialData?.documentId])
 
   const handleCustomerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const customerId = e.target.value
@@ -448,18 +447,51 @@ export default function OrderForm({ initialData, onSubmit, submitLabel, isEditin
       {/* Sección de Cartas (Opcional) */}
       <div className="card mb-4">
           <div className="card-header d-flex justify-content-between align-items-center">
-            <h3 className="card-title mb-0">Cartas a Incluir (Opcional)</h3>
+            <h3 className="card-title mb-0">Cartas en esta Orden</h3>
             <button
               type="button"
               onClick={() => setShowCardSection(!showCardSection)}
               className={`btn btn-sm ${showCardSection ? 'btn-outline-secondary' : 'btn-outline-primary'}`}
             >
-              {showCardSection ? 'Ocultar' : 'Mostrar'} Cartas
+              {showCardSection ? 'Ocultar gestión' : 'Gestionar cartas'}
             </button>
           </div>
 
-          {showCardSection && (
-            <div className="card-body">
+          <div className="card-body">
+            {/* Mostrar cartas asignadas SIEMPRE */}
+            {selectedCards.length > 0 && (
+              <div className="mb-3">
+                <h6 className="text-success">Cartas Asignadas ({selectedCards.length})</h6>
+                <div className="row g-2">
+                  {selectedCards.filter(card => card && card.name).map((card) => (
+                    <div key={card.documentId} className="col-md-6">
+                      <div className="card bg-light border-success">
+                        <div className="card-body p-2">
+                          <div className="d-flex justify-content-between align-items-center">
+                            <div>
+                              <strong>{card.name}</strong>
+                              <br />
+                              <small className="text-muted">
+                                #{card.certificationNumber} • Grado {card.finalGrade}
+                              </small>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {!selectedCards.length && !showCardSection && (
+              <p className="text-muted mb-0">No hay cartas asignadas. Haz clic en "Gestionar cartas" para agregar.</p>
+            )}
+
+            {showCardSection && (
+              <>
+                {selectedCards.length > 0 && <hr className="my-3" />}
+                <div className="card-body p-0">
               {/* Búsqueda de cartas */}
               <div className="row g-3 mb-4">
                 <div className="col-md-8">
@@ -483,12 +515,12 @@ export default function OrderForm({ initialData, onSubmit, submitLabel, isEditin
                 </div>
               </div>
 
-              {/* Cartas seleccionadas */}
+              {/* Gestión de cartas seleccionadas */}
               {selectedCards.length > 0 && (
                 <div className="mb-4">
-                  <h5 className="text-success">Cartas Seleccionadas ({selectedCards.length})</h5>
+                  <h6 className="text-info">Gestionar Cartas Asignadas</h6>
                   <div className="row g-2">
-                    {selectedCards.map((card) => (
+                    {selectedCards.filter(card => card && card.name).map((card) => (
                       <div key={card.documentId} className="col-md-6">
                         <div className="card bg-light border-success">
                           <div className="card-body p-2">
@@ -521,7 +553,7 @@ export default function OrderForm({ initialData, onSubmit, submitLabel, isEditin
                 <div>
                   <h6 className="text-muted">Cartas Disponibles</h6>
                   <div className="row g-2" style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                    {availableCards.map((card) => (
+                    {availableCards.filter(card => card && card.name).map((card) => (
                       <div key={card.documentId} className="col-md-6">
                         <div className="card bg-white border">
                           <div className="card-body p-2">
@@ -531,9 +563,6 @@ export default function OrderForm({ initialData, onSubmit, submitLabel, isEditin
                                 <br />
                                 <small className="text-muted">
                                   #{card.certificationNumber} • Grado {card.finalGrade}
-                                  {card.customerId === formData.customerId && (
-                                    <span className="badge bg-primary ms-1">Propia</span>
-                                  )}
                                 </small>
                               </div>
                               <button
@@ -555,16 +584,15 @@ export default function OrderForm({ initialData, onSubmit, submitLabel, isEditin
                   <div className="text-center text-muted py-3">
                     <p>No hay cartas disponibles</p>
                     <p className="small">
-                      {formData.customerId
-                        ? 'Intenta buscar cartas específicas o todas las cartas están ya asignadas a otras órdenes.'
-                        : 'Selecciona un cliente primero para ver sus cartas disponibles.'
-                      }
+                      Busca cartas específicas por nombre o número de certificación.
                     </p>
                   </div>
                 )
               )}
-            </div>
-          )}
+              </div>
+              </>
+            )}
+          </div>
         </div>
 
       {/* Submit Button */}
