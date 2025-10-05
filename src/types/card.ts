@@ -47,6 +47,8 @@ export interface Corners {
 export interface CenteringSide {
   left: number;
   top: number;
+  right: number;
+  bottom: number;
 }
 
 export interface Centering {

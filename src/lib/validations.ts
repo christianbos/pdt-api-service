@@ -49,6 +49,8 @@ const CornersSchema = z.object({
 const CenteringSideSchema = z.object({
   left: z.number().min(0).max(10),
   top: z.number().min(0).max(10),
+  right: z.number().min(0).max(10),
+  bottom: z.number().min(0).max(10),
 })
 
 const CenteringSchema = z.object({

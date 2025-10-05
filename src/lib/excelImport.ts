@@ -59,8 +59,12 @@ interface ExcelCardRow {
   centeringFinalScore: number
   centeringFrontLeft: number
   centeringFrontTop: number
+  centeringFrontRight: number
+  centeringFrontBottom: number
   centeringBackLeft: number
   centeringBackTop: number
+  centeringBackRight: number
+  centeringBackBottom: number
 }
 
 export class ExcelImportService {
@@ -151,10 +155,14 @@ export class ExcelImportService {
         front: {
           left: row.centeringFrontLeft,
           top: row.centeringFrontTop,
+          right: row.centeringFrontRight,
+          bottom: row.centeringFrontBottom,
         },
         back: {
           left: row.centeringBackLeft,
           top: row.centeringBackTop,
+          right: row.centeringBackRight,
+          bottom: row.centeringBackBottom,
         },
       },
     }
@@ -173,7 +181,8 @@ export class ExcelImportService {
       'cornersFrontTopLeft', 'cornersFrontTopRight', 'cornersFrontBottomLeft', 'cornersFrontBottomRight',
       'cornersBackTopLeft', 'cornersBackTopRight', 'cornersBackBottomLeft', 'cornersBackBottomRight',
       'centeringFrontScore', 'centeringBackScore', 'centeringFinalScore',
-      'centeringFrontLeft', 'centeringFrontTop', 'centeringBackLeft', 'centeringBackTop'
+      'centeringFrontLeft', 'centeringFrontTop', 'centeringFrontRight', 'centeringFrontBottom',
+      'centeringBackLeft', 'centeringBackTop', 'centeringBackRight', 'centeringBackBottom'
     ]
 
     const exampleRow = [
@@ -188,6 +197,7 @@ export class ExcelImportService {
       10, 10, 10, 10,
       10, 10, 10, 10,
       9.5, 9.5, 9.5,
+      9.5, 9.5, 9.5, 9.5,
       9.5, 9.5, 9.5, 9.5
     ]
 
