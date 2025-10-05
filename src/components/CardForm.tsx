@@ -15,7 +15,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
   const mergeWithDefaults = (data: any, defaults: any): any => {
     if (!data) return defaults
     if (typeof data !== 'object' || typeof defaults !== 'object') return data
-    
+
     const merged = { ...defaults }
     for (const key in data) {
       if (data[key] !== null && data[key] !== undefined) {
@@ -30,6 +30,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
   }
 
   // No longer need formData state - using pure HTML form
+  const isEditMode = !!initialData?.certificationNumber
 
   const [loading, setLoading] = useState(false)
   const [customers, setCustomers] = useState<any[]>([])
@@ -76,8 +77,10 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
     setLoading(true)
 
     try {
-      // Generate next certification number automatically
-      const nextCertNumber = await generateNextCertificationNumber()
+      // Generate next certification number only if creating new card
+      const nextCertNumber = isEditMode
+        ? initialData.certificationNumber!
+        : await generateNextCertificationNumber()
 
       // Get form data using native FormData
       const form = e.target as HTMLFormElement
@@ -227,6 +230,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 name="name"
                 className="form-control"
                 required
+                defaultValue={initialData?.name || ''}
               />
             </div>
             <div className="col-md-6">
@@ -236,6 +240,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 name="set"
                 className="form-control"
                 required
+                defaultValue={initialData?.set || ''}
               />
             </div>
             <div className="col-md-6">
@@ -246,6 +251,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 className="form-control"
                 required
                 min="1"
+                defaultValue={initialData?.number || ''}
               />
             </div>
             <div className="col-md-6">
@@ -257,6 +263,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 required
                 min="1900"
                 max="2030"
+                defaultValue={initialData?.year || ''}
               />
             </div>
             <div className="col-md-6">
@@ -266,6 +273,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 name="rarity"
                 className="form-control"
                 required
+                defaultValue={initialData?.rarity || ''}
               />
             </div>
             <div className="col-md-6">
@@ -276,7 +284,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 min="0"
                 max="10"
                 name="finalGrade"
-                defaultValue="10"
+                defaultValue={initialData?.finalGrade ?? 10}
                 className="form-control"
               />
             </div>
@@ -286,7 +294,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 type="number"
                 min="1"
                 name="version"
-                defaultValue="1"
+                defaultValue={initialData?.version ?? 1}
                 className="form-control"
                 title="Debe ser un número entero mayor a 0"
               />
@@ -298,6 +306,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 name="tcg"
                 className="form-control"
                 placeholder="Pokemon, Yu-Gi-Oh, etc."
+                defaultValue={initialData?.tcg || ''}
               />
             </div>
             <div className="col-md-6">
@@ -307,6 +316,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 name="gradeText"
                 className="form-control"
                 placeholder="NEAR MINT, EXCELLENT, etc."
+                defaultValue={initialData?.gradeText || ''}
               />
             </div>
             <div className="col-md-6">
@@ -315,6 +325,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 type="datetime-local"
                 name="gradeDate"
                 className="form-control"
+                defaultValue={initialData?.gradeDate ? new Date(initialData.gradeDate).toISOString().slice(0, 16) : ''}
               />
             </div>
             <div className="col-md-6">
@@ -324,6 +335,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 className="form-control"
                 rows={2}
                 placeholder="Notas adicionales (opcional)"
+                defaultValue={initialData?.notes || ''}
               />
             </div>
             <div className="col-12">
@@ -333,6 +345,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                   name="has3DScan"
                   className="form-check-input"
                   id="has3DScan"
+                  defaultChecked={initialData?.has3DScan || false}
                 />
                 <label className="form-check-label" htmlFor="has3DScan">Tiene escaneo 3D</label>
               </div>
@@ -358,6 +371,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 name="surface.finalScore"
                 className="form-control"
                 title="Score final de la superficie (0-10)"
+                defaultValue={initialData?.surface?.finalScore ?? 0}
               />
             </div>
             <div className="col-md-4">
@@ -370,10 +384,11 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 name="surface.bent"
                 className="form-control"
                 title="Nivel de curvatura (0-10)"
+                defaultValue={initialData?.surface?.bent ?? 0}
               />
             </div>
           </div>
-          
+
           <div className="row g-3 mt-3">
             <div className="col-md-6">
               <h5 className="card-subtitle mb-3">Front</h5>
@@ -388,6 +403,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     name="surface.front.color"
                     className="form-control"
                     title="Rango: 0-10"
+                    defaultValue={initialData?.surface?.front?.color ?? 0}
                   />
                 </div>
                 <div className="col-6">
@@ -400,6 +416,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     name="surface.front.scratches"
                     className="form-control"
                     title="Rango: 0-10"
+                    defaultValue={initialData?.surface?.front?.scratches ?? 0}
                   />
                 </div>
               </div>
@@ -417,6 +434,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     name="surface.back.color"
                     className="form-control"
                     title="Rango: 0-10"
+                    defaultValue={initialData?.surface?.back?.color ?? 0}
                   />
                 </div>
                 <div className="col-6">
@@ -429,6 +447,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     name="surface.back.scratches"
                     className="form-control"
                     title="Rango: 0-10"
+                    defaultValue={initialData?.surface?.back?.scratches ?? 0}
                   />
                 </div>
               </div>
@@ -453,10 +472,11 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 max="10"
                 name="edges.finalScore"
                 className="form-control"
+                defaultValue={initialData?.edges?.finalScore ?? 0}
               />
             </div>
           </div>
-          
+
           <div className="row g-3 mt-3">
             <div className="col-md-6">
               <h5 className="card-subtitle mb-3">Front</h5>
@@ -470,6 +490,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     max="10"
                     name="edges.front.left"
                     className="form-control"
+                    defaultValue={initialData?.edges?.front?.left ?? 0}
                   />
                 </div>
                 <div className="col-6">
@@ -481,6 +502,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     max="10"
                     name="edges.front.top"
                     className="form-control"
+                    defaultValue={initialData?.edges?.front?.top ?? 0}
                   />
                 </div>
                 <div className="col-6">
@@ -492,6 +514,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     max="10"
                     name="edges.front.right"
                     className="form-control"
+                    defaultValue={initialData?.edges?.front?.right ?? 0}
                   />
                 </div>
                 <div className="col-6">
@@ -503,6 +526,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     max="10"
                     name="edges.front.bottom"
                     className="form-control"
+                    defaultValue={initialData?.edges?.front?.bottom ?? 0}
                   />
                 </div>
               </div>
@@ -519,6 +543,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     max="10"
                     name="edges.back.left"
                     className="form-control"
+                    defaultValue={initialData?.edges?.back?.left ?? 0}
                   />
                 </div>
                 <div className="col-6">
@@ -530,6 +555,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     max="10"
                     name="edges.back.top"
                     className="form-control"
+                    defaultValue={initialData?.edges?.back?.top ?? 0}
                   />
                 </div>
                 <div className="col-6">
@@ -541,6 +567,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     max="10"
                     name="edges.back.right"
                     className="form-control"
+                    defaultValue={initialData?.edges?.back?.right ?? 0}
                   />
                 </div>
                 <div className="col-6">
@@ -552,6 +579,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     max="10"
                     name="edges.back.bottom"
                     className="form-control"
+                    defaultValue={initialData?.edges?.back?.bottom ?? 0}
                   />
                 </div>
               </div>
@@ -576,10 +604,11 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 max="10"
                 name="corners.finalScore"
                 className="form-control"
+                defaultValue={initialData?.corners?.finalScore ?? 0}
               />
             </div>
           </div>
-          
+
           <div className="row g-3 mt-3">
             <div className="col-md-6">
               <h5 className="card-subtitle mb-3">Front</h5>
@@ -593,6 +622,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     max="10"
                     name="corners.front.topLeft"
                     className="form-control"
+                    defaultValue={initialData?.corners?.front?.topLeft ?? 0}
                   />
                 </div>
                 <div className="col-6">
@@ -604,6 +634,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     max="10"
                     name="corners.front.topRight"
                     className="form-control"
+                    defaultValue={initialData?.corners?.front?.topRight ?? 0}
                   />
                 </div>
                 <div className="col-6">
@@ -615,6 +646,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     max="10"
                     name="corners.front.bottomLeft"
                     className="form-control"
+                    defaultValue={initialData?.corners?.front?.bottomLeft ?? 0}
                   />
                 </div>
                 <div className="col-6">
@@ -626,6 +658,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     max="10"
                     name="corners.front.bottomRight"
                     className="form-control"
+                    defaultValue={initialData?.corners?.front?.bottomRight ?? 0}
                   />
                 </div>
               </div>
@@ -642,6 +675,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     max="10"
                     name="corners.back.topLeft"
                     className="form-control"
+                    defaultValue={initialData?.corners?.back?.topLeft ?? 0}
                   />
                 </div>
                 <div className="col-6">
@@ -653,6 +687,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     max="10"
                     name="corners.back.topRight"
                     className="form-control"
+                    defaultValue={initialData?.corners?.back?.topRight ?? 0}
                   />
                 </div>
                 <div className="col-6">
@@ -664,6 +699,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     max="10"
                     name="corners.back.bottomLeft"
                     className="form-control"
+                    defaultValue={initialData?.corners?.back?.bottomLeft ?? 0}
                   />
                 </div>
                 <div className="col-6">
@@ -675,6 +711,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     max="10"
                     name="corners.back.bottomRight"
                     className="form-control"
+                    defaultValue={initialData?.corners?.back?.bottomRight ?? 0}
                   />
                 </div>
               </div>
@@ -699,6 +736,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 max="10"
                 name="centering.frontScore"
                 className="form-control"
+                defaultValue={initialData?.centering?.frontScore ?? 0}
               />
             </div>
             <div className="col-md-4">
@@ -710,6 +748,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 max="10"
                 name="centering.backScore"
                 className="form-control"
+                defaultValue={initialData?.centering?.backScore ?? 0}
               />
             </div>
             <div className="col-md-4">
@@ -721,10 +760,11 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                 max="10"
                 name="centering.finalScore"
                 className="form-control"
+                defaultValue={initialData?.centering?.finalScore ?? 0}
               />
             </div>
           </div>
-          
+
           <div className="row g-3 mt-3">
             <div className="col-md-6">
               <h5 className="card-subtitle mb-3">Front</h5>
@@ -738,6 +778,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     max="10"
                     name="centering.front.left"
                     className="form-control"
+                    defaultValue={initialData?.centering?.front?.left ?? 0}
                   />
                 </div>
                 <div className="col-6">
@@ -749,6 +790,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     max="10"
                     name="centering.front.top"
                     className="form-control"
+                    defaultValue={initialData?.centering?.front?.top ?? 0}
                   />
                 </div>
                 <div className="col-6">
@@ -760,6 +802,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     max="10"
                     name="centering.front.right"
                     className="form-control"
+                    defaultValue={initialData?.centering?.front?.right ?? 0}
                   />
                 </div>
                 <div className="col-6">
@@ -771,6 +814,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     max="10"
                     name="centering.front.bottom"
                     className="form-control"
+                    defaultValue={initialData?.centering?.front?.bottom ?? 0}
                   />
                 </div>
               </div>
@@ -787,6 +831,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     max="10"
                     name="centering.back.left"
                     className="form-control"
+                    defaultValue={initialData?.centering?.back?.left ?? 0}
                   />
                 </div>
                 <div className="col-6">
@@ -798,6 +843,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     max="10"
                     name="centering.back.top"
                     className="form-control"
+                    defaultValue={initialData?.centering?.back?.top ?? 0}
                   />
                 </div>
                 <div className="col-6">
@@ -809,6 +855,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     max="10"
                     name="centering.back.right"
                     className="form-control"
+                    defaultValue={initialData?.centering?.back?.right ?? 0}
                   />
                 </div>
                 <div className="col-6">
@@ -820,6 +867,7 @@ export default function CardForm({ initialData, onSubmit, submitLabel }: CardFor
                     max="10"
                     name="centering.back.bottom"
                     className="form-control"
+                    defaultValue={initialData?.centering?.back?.bottom ?? 0}
                   />
                 </div>
               </div>
